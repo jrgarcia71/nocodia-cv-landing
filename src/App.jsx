@@ -274,151 +274,91 @@ export default function App() {
               </section>
             )}
 
-            {/* Sección 4: Tipo de revisión/creación */}
-            <section>
-              <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                {formData.tieneCV === 'si' ? '4. Tipo de revisión' : '3. ¿Cómo prefieres crearlo?'}
-              </h4>
-              
-              {formData.tieneCV === 'si' ? (
-                <div className="space-y-3">
-                  <label className="flex items-start p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-                    <input
-                      type="radio"
-                      name="tipoRevision"
-                      value="generica"
-                      checked={formData.tipoRevision === 'generica'}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
-                      className="w-4 h-4 text-blue-600 mt-1"
-                    />
-                    <div className="ml-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-900 font-medium">Genérica</span>
-                        <span className="text-green-600 font-bold text-sm">GRATIS*</span>
-                      </div>
-                      <p className="text-sm text-slate-600 mt-1">Análisis y recomendaciones generales</p>
-                    </div>
-                  </label>
-                  <label className="flex items-start p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-                    <input
-                      type="radio"
-                      name="tipoRevision"
-                      value="especializada"
-                      checked={formData.tipoRevision === 'especializada'}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
-                      className="w-4 h-4 text-blue-600 mt-1"
-                    />
-                    <div className="ml-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-900 font-medium">Especializada</span>
-                        <span className="text-blue-600 font-bold text-sm">$12</span>
-                      </div>
-                      <p className="text-sm text-slate-600 mt-1">CV reescrito y optimizado para puesto específico</p>
-                    </div>
-                  </label>
-                  <label className="flex items-start p-4 border-2 border-blue-500 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
-                    <input
-                      type="radio"
-                      name="tipoRevision"
-                      value="premium"
-                      checked={formData.tipoRevision === 'premium'}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
-                      className="w-4 h-4 text-blue-600 mt-1"
-                    />
-                    <div className="ml-3 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-900 font-medium">Premium - Con LinkedIn</span>
-                        <span className="text-blue-600 font-bold text-sm">$20</span>
-                        <span className="text-xs bg-yellow-400 text-yellow-900 px-2 py-1 rounded font-bold">
-                          ⭐ RECOMENDADO
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-700 mt-1">Combina tu CV + LinkedIn para optimización completa</p>
-                    </div>
-                  </label>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <label className="flex items-start p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-                    <input
-                      type="radio"
-                      name="tipoRevision"
-                      value="basico"
-                      checked={formData.tipoRevision === 'basico'}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
-                      className="w-4 h-4 text-blue-600 mt-1"
-                    />
-                    <div className="ml-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-900 font-medium">Básico - Manual</span>
-                        <span className="text-purple-600 font-bold text-sm">$15</span>
-                      </div>
-                      <p className="text-sm text-slate-600 mt-1">Llenas formulario completo con tu información</p>
-                    </div>
-                  </label>
-                  <label className="flex items-start p-4 border-2 border-blue-500 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
-                    <input
-                      type="radio"
-                      name="tipoRevision"
-                      value="premium"
-                      checked={formData.tipoRevision === 'premium'}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
-                      className="w-4 h-4 text-blue-600 mt-1"
-                    />
-                    <div className="ml-3 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-900 font-medium">Premium - Con LinkedIn</span>
-                        <span className="text-blue-600 font-bold text-sm">$20</span>
-                        <span className="text-xs bg-yellow-400 text-yellow-900 px-2 py-1 rounded font-bold">
-                          ⭐ RECOMENDADO
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-700 mt-1">Exporta tu LinkedIn + info adicional</p>
-                    </div>
-                  </label>
-                </div>
-              )}
-            </section>
-
-            {/* LinkedIn PDF Upload (para premium) */}
-            {formData.tipoRevision === 'premium' && (
-              <section>
-                <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' ? '5' : '4'}. Tu perfil de LinkedIn (PDF)
-                </h4>
-                
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <p className="text-sm font-medium text-blue-900 mb-2">📌 Cómo exportar tu LinkedIn a PDF:</p>
-                  <ol className="text-sm text-blue-800 space-y-1 ml-4 list-decimal">
-                    <li>Ve a tu perfil de LinkedIn</li>
-                    <li>Haz clic en "Más" (tres puntos)</li>
-                    <li>Selecciona "Guardar en PDF"</li>
-                    <li>Descarga el archivo</li>
-                  </ol>
-                </div>
-
-                <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
-                  <Upload className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                  <label className="cursor-pointer">
-                    <span className="text-blue-600 font-medium hover:text-blue-700">
-                      Selecciona LinkedIn.pdf
-                    </span>
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      onChange={(e) => handleFileChange(e, 'linkedinFile')}
-                      className="hidden"
-                      required={formData.tipoRevision === 'premium'}
-                    />
-                  </label>
-                  <p className="text-sm text-slate-500 mt-2">PDF, máximo 10MB</p>
-                  {formData.linkedinFile && (
-                    <p className="text-sm text-green-600 mt-3 font-medium">
-                      ✓ {formData.linkedinFile.name}
-                    </p>
-                  )}
-                </div>
-              </section>
+          {/* Sección 4: Tipo de revisión/creación */}
+<section>
+  <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+    {formData.tieneCV === 'si' ? '4. Tipo de revisión' : '3. Tipo de servicio'}
+  </h4>
+  
+  <div className="space-y-3">
+    {formData.tieneCV === 'si' && (
+      <label className="flex items-start p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+        <input
+          type="radio"
+          name="tipoRevision"
+          value="generica"
+          checked={formData.tipoRevision === 'generica'}
+          onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
+          className="w-4 h-4 text-blue-600 mt-1"
+        />
+        <div className="ml-3">
+          <div className="flex items-center gap-2">
+            <span className="text-slate-900 font-medium">Genérica</span>
+            <span className="text-green-600 font-bold text-sm">GRATIS*</span>
+          </div>
+          <p className="text-sm text-slate-600 mt-1">Análisis y recomendaciones generales</p>
+        </div>
+      </label>
+    )}
+    
+    <label className="flex items-start p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+      <input
+        type="radio"
+        name="tipoRevision"
+        value="especializada"
+        checked={formData.tipoRevision === 'especializada'}
+        onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
+        className="w-4 h-4 text-blue-600 mt-1"
+      />
+      <div className="ml-3">
+        <div className="flex items-center gap-2">
+          <span className="text-slate-900 font-medium">Especializada</span>
+          <span className="text-blue-600 font-bold text-sm">$12</span>
+        </div>
+        <p className="text-sm text-slate-600 mt-1">CV optimizado para puesto específico</p>
+      </div>
+    </label>
+    
+    <label className="flex items-start p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+      <input
+        type="radio"
+        name="tipoRevision"
+        value="basico"
+        checked={formData.tipoRevision === 'basico'}
+        onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
+        className="w-4 h-4 text-blue-600 mt-1"
+      />
+      <div className="ml-3">
+        <div className="flex items-center gap-2">
+          <span className="text-slate-900 font-medium">Básico</span>
+          <span className="text-purple-600 font-bold text-sm">$15</span>
+        </div>
+        <p className="text-sm text-slate-600 mt-1">CV desde cero con formulario</p>
+      </div>
+    </label>
+    
+    <label className="flex items-start p-4 border-2 border-blue-500 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+      <input
+        type="radio"
+        name="tipoRevision"
+        value="premium"
+        checked={formData.tipoRevision === 'premium'}
+        onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
+        className="w-4 h-4 text-blue-600 mt-1"
+      />
+      <div className="ml-3 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="text-slate-900 font-medium">Premium</span>
+          <span className="text-blue-600 font-bold text-sm">$20</span>
+          <span className="text-xs bg-yellow-400 text-yellow-900 px-2 py-1 rounded font-bold">
+            ⭐ RECOMENDADO
+          </span>
+        </div>
+        <p className="text-sm text-slate-700 mt-1">Con LinkedIn + optimización completa</p>
+      </div>
+    </label>
+  </div>
+</section>
             )}
 
             {/* Información del puesto (para especializada y premium) */}
