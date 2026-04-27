@@ -87,10 +87,11 @@ export default function App() {
   };
 
   const getPrice = () => {
-    if (formData.tieneCV === 'no') {
-      return formData.tipoRevision === 'premium' ? '$20' : '$15';
-    }
-    return formData.tipoRevision === 'generica' ? 'GRATIS*' : '$12';
+    if (formData.tipoRevision === 'generica') return 'GRATIS*';
+    if (formData.tipoRevision === 'especializada') return '$12';
+    if (formData.tipoRevision === 'basico') return '$15';
+    if (formData.tipoRevision === 'premium') return '$20';
+    return '';
   };
 
   return (
@@ -224,7 +225,7 @@ export default function App() {
                     name="tieneCV"
                     value="si"
                     checked={formData.tieneCV === 'si'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'generica' }))}
                     className="w-4 h-4 text-blue-600"
                   />
                   <span className="ml-3 text-slate-900 font-medium">Sí, tengo CV para revisar</span>
@@ -235,7 +236,7 @@ export default function App() {
                     name="tieneCV"
                     value="no"
                     checked={formData.tieneCV === 'no'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'basico' }))}
                     className="w-4 h-4 text-blue-600"
                   />
                   <span className="ml-3 text-slate-900 font-medium">No, necesito crear uno desde cero</span>
@@ -315,6 +316,26 @@ export default function App() {
                       <p className="text-sm text-slate-600 mt-1">CV reescrito y optimizado para puesto específico</p>
                     </div>
                   </label>
+                  <label className="flex items-start p-4 border-2 border-blue-500 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                    <input
+                      type="radio"
+                      name="tipoRevision"
+                      value="premium"
+                      checked={formData.tipoRevision === 'premium'}
+                      onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
+                      className="w-4 h-4 text-blue-600 mt-1"
+                    />
+                    <div className="ml-3 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-900 font-medium">Premium - Con LinkedIn</span>
+                        <span className="text-blue-600 font-bold text-sm">$20</span>
+                        <span className="text-xs bg-yellow-400 text-yellow-900 px-2 py-1 rounded font-bold">
+                          ⭐ RECOMENDADO
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-700 mt-1">Combina tu CV + LinkedIn para optimización completa</p>
+                    </div>
+                  </label>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -360,10 +381,10 @@ export default function App() {
             </section>
 
             {/* LinkedIn PDF Upload (para premium) */}
-            {formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && (
+            {formData.tipoRevision === 'premium' && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  4. Tu perfil de LinkedIn (PDF)
+                  {formData.tieneCV === 'si' ? '5' : '4'}. Tu perfil de LinkedIn (PDF)
                 </h4>
                 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
@@ -387,7 +408,7 @@ export default function App() {
                       accept=".pdf"
                       onChange={(e) => handleFileChange(e, 'linkedinFile')}
                       className="hidden"
-                      required={formData.tieneCV === 'no' && formData.tipoRevision === 'premium'}
+                      required={formData.tipoRevision === 'premium'}
                     />
                   </label>
                   <p className="text-sm text-slate-500 mt-2">PDF, máximo 10MB</p>
@@ -404,7 +425,9 @@ export default function App() {
             {(formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium') && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' ? '5' : '5'}. Puesto objetivo
+                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' ? '6' : 
+                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' ? '5' : 
+                   formData.tieneCV === 'si' ? '5' : '4'}. Puesto objetivo
                 </h4>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
@@ -465,7 +488,9 @@ export default function App() {
             {(formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium') && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' ? '6' : '6'}. Información adicional
+                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' ? '7' : 
+                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' ? '6' : 
+                   formData.tieneCV === 'si' ? '6' : '5'}. Información adicional
                 </h4>
                 
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
