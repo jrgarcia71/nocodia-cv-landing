@@ -51,7 +51,7 @@ export default function App() {
         }
       });
 
-      const response = await fetch('/api/submit', {
+      const response = await fetch('https://nocodia-cv-worker.jraul-garcia.workers.dev/api/submit', {
         method: 'POST',
         body: formDataToSend
       });
