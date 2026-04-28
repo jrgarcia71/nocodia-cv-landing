@@ -359,7 +359,7 @@ export default function App() {
     </label>
   </div>
 </section>
-            )}
+            
 
             {/* Información del puesto (para especializada y premium) */}
             {(formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium') && (
