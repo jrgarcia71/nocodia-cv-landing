@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import './App.css';
 
 function App() {
   const [formData, setFormData] = useState({
@@ -85,7 +84,8 @@ function App() {
           cvFile: null,
           linkedinFile: null,
         });
-        document.getElementById('cvFile').value = '';
+        const cvInput = document.getElementById('cvFile');
+        if (cvInput) cvInput.value = '';
         const linkedinInput = document.getElementById('linkedinFile');
         if (linkedinInput) linkedinInput.value = '';
       } else {
