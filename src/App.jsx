@@ -243,25 +243,15 @@ function App() {
             </div>
           )}
 
-          {/* Subir LinkedIn - CON INSTRUCCIONES DETALLADAS */}
+          {/* Subir LinkedIn - NUEVO */}
           {showLinkedInUpload && (
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-lg border-2 border-purple-300">
-              <label className="block text-lg font-bold text-purple-900 mb-3">
-                📄 Sube tu Perfil de LinkedIn en PDF *
+            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+              <label className="block text-sm font-medium text-purple-900 mb-1">
+                Sube tu LinkedIn PDF *
               </label>
-              
-              <div className="bg-white p-4 rounded-lg mb-4 border border-purple-200">
-                <p className="font-semibold text-purple-900 mb-2">📱 Cómo descargar tu LinkedIn:</p>
-                <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
-                  <li>Abre LinkedIn en tu navegador (no en la app)</li>
-                  <li>Ve a tu perfil (click en tu foto arriba)</li>
-                  <li>Click en "Más" (botón con 3 puntos)</li>
-                  <li>Selecciona "Guardar en PDF"</li>
-                  <li>Descarga el archivo</li>
-                  <li>Súbelo aquí ⬇️</li>
-                </ol>
-              </div>
-              
+              <p className="text-xs text-purple-700 mb-2">
+                Descarga tu perfil de LinkedIn como PDF desde: Perfil → Más → Guardar en PDF
+              </p>
               <input
                 type="file"
                 id="linkedinFile"
@@ -269,7 +259,7 @@ function App() {
                 accept=".pdf"
                 onChange={handleFileChange}
                 required
-                className="w-full px-4 py-3 border-2 border-purple-400 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent bg-white text-lg"
+                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
               />
             </div>
           )}
@@ -348,7 +338,7 @@ function App() {
                   rows="4"
                   maxLength="500"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Ej: Incrementé ventas 40%, lideré equipo de 15 personas, implementé sistema que redujo costos 30%..."
+                  placeholder="Ej: Incrementé ventas 40%, lideré equipo de 15 personas..."
                 />
                 <p className="text-xs text-gray-500 mt-1">{formData.infoAdicional.length}/500 caracteres</p>
               </div>
@@ -366,7 +356,7 @@ function App() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? 'Enviando...' : 'Solicitar análisis'}
           </button>
