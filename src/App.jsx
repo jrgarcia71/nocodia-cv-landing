@@ -8,6 +8,7 @@ export default function App() {
     telefono: '',
     tieneCV: 'si',
     tipoRevision: 'generica',
+    tipoCV: '', // NUEVO: 'especifico' o 'general'
     puesto: '',
     empresa: '',
     industria: '',
@@ -67,6 +68,7 @@ export default function App() {
           telefono: '',
           tieneCV: 'si',
           tipoRevision: 'generica',
+          tipoCV: '',
           puesto: '',
           empresa: '',
           industria: '',
@@ -93,6 +95,12 @@ export default function App() {
     if (formData.tipoRevision === 'premium') return '$20';
     return '';
   };
+
+  // NUEVO: Determinar si debe mostrar opción específico/general
+  const showTipoCVOption = formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium';
+  
+  // NUEVO: Determinar si debe mostrar campos de puesto
+  const showPuestoFields = formData.tipoCV === 'especifico';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
@@ -128,7 +136,7 @@ export default function App() {
           </p>
         </div>
 
-        {/* Pricing Cards */}
+        {/* Pricing Cards - ACTUALIZADAS */}
         <div className="grid md:grid-cols-4 gap-4 mb-16">
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
             <div className="text-sm font-semibold text-blue-600 uppercase tracking-wide mb-2">Revisión</div>
@@ -137,15 +145,17 @@ export default function App() {
           </div>
           
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-            <div className="text-sm font-semibold text-indigo-600 uppercase tracking-wide mb-2">Especializado</div>
+            <div className="text-sm font-semibold text-indigo-600 uppercase tracking-wide mb-2">Especializada</div>
             <div className="text-3xl font-bold text-slate-900 mb-2">$12</div>
-            <p className="text-sm text-slate-600">CV reescrito para puesto específico</p>
+            <p className="text-sm text-slate-600 mb-2">CV reescrito para:</p>
+            <p className="text-xs text-slate-500">• Puesto específico<br/>• Mejora general</p>
+            <p className="text-xs text-slate-400 mt-2">(Tú eliges)</p>
           </div>
           
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
             <div className="text-sm font-semibold text-purple-600 uppercase tracking-wide mb-2">Básico</div>
             <div className="text-3xl font-bold text-slate-900 mb-2">$15</div>
-            <p className="text-sm text-slate-600">CV nuevo desde formulario</p>
+            <p className="text-sm text-slate-600">CV nuevo desde cero con formulario</p>
           </div>
           
           <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-6 shadow-lg border-2 border-blue-700 relative overflow-hidden">
@@ -154,7 +164,9 @@ export default function App() {
             </div>
             <div className="text-sm font-semibold text-blue-100 uppercase tracking-wide mb-2">Premium</div>
             <div className="text-3xl font-bold text-white mb-2">$20</div>
-            <p className="text-sm text-blue-100">Con LinkedIn + optimización completa</p>
+            <p className="text-sm text-blue-100 mb-2">Con LinkedIn PDF</p>
+            <p className="text-xs text-blue-200">• Puesto específico<br/>• Mejora general</p>
+            <p className="text-xs text-blue-300 mt-2">(Tú eliges)</p>
           </div>
         </div>
 
@@ -225,7 +237,7 @@ export default function App() {
                     name="tieneCV"
                     value="si"
                     checked={formData.tieneCV === 'si'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'generica' }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'generica', tipoCV: '' }))}
                     className="w-4 h-4 text-blue-600"
                   />
                   <span className="ml-3 text-slate-900 font-medium">Sí, tengo CV para revisar</span>
@@ -236,7 +248,7 @@ export default function App() {
                     name="tieneCV"
                     value="no"
                     checked={formData.tieneCV === 'no'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'basico' }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'basico', tipoCV: '' }))}
                     className="w-4 h-4 text-blue-600"
                   />
                   <span className="ml-3 text-slate-900 font-medium">No, necesito crear uno desde cero</span>
@@ -330,7 +342,7 @@ export default function App() {
           name="tipoRevision"
           value="generica"
           checked={formData.tipoRevision === 'generica'}
-          onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
+          onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value, tipoCV: '' }))}
           className="w-4 h-4 text-blue-600 mt-1"
         />
         <div className="ml-3">
@@ -349,7 +361,7 @@ export default function App() {
         name="tipoRevision"
         value="especializada"
         checked={formData.tipoRevision === 'especializada'}
-        onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
+        onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value, tipoCV: '' }))}
         className="w-4 h-4 text-blue-600 mt-1"
       />
       <div className="ml-3">
@@ -357,7 +369,7 @@ export default function App() {
           <span className="text-slate-900 font-medium">Especializada</span>
           <span className="text-blue-600 font-bold text-sm">$12</span>
         </div>
-        <p className="text-sm text-slate-600 mt-1">CV optimizado para puesto específico</p>
+        <p className="text-sm text-slate-600 mt-1">CV optimizado (específico o general)</p>
       </div>
     </label>
     
@@ -367,7 +379,7 @@ export default function App() {
         name="tipoRevision"
         value="basico"
         checked={formData.tipoRevision === 'basico'}
-        onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
+        onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value, tipoCV: '' }))}
         className="w-4 h-4 text-blue-600 mt-1"
       />
       <div className="ml-3">
@@ -385,7 +397,7 @@ export default function App() {
         name="tipoRevision"
         value="premium"
         checked={formData.tipoRevision === 'premium'}
-        onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value }))}
+        onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value, tipoCV: '' }))}
         className="w-4 h-4 text-blue-600 mt-1"
       />
       <div className="ml-3 flex-1">
@@ -396,21 +408,98 @@ export default function App() {
             ⭐ RECOMENDADO
           </span>
         </div>
-        <p className="text-sm text-slate-700 mt-1">Con LinkedIn + optimización completa</p>
+        <p className="text-sm text-slate-700 mt-1">Con LinkedIn + optimización (específico o general)</p>
       </div>
     </label>
   </div>
 </section>
-            
 
-            {/* Información del puesto (para especializada y premium) */}
-            {(formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium') && (
+            {/* NUEVA SECCIÓN: ¿Específico o General? */}
+            {showTipoCVOption && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' ? '6' : 
-                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' ? '5' : 
-                   formData.tieneCV === 'si' ? '5' : '4'}. Puesto objetivo
+                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' ? '6' :
+                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' ? '5' :
+                   formData.tieneCV === 'si' ? '5' : '4'}. ¿Qué tipo de CV necesitas?
                 </h4>
+
+                <div className="space-y-3">
+                  <label className="flex items-start p-5 border-2 border-blue-300 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                    <input
+                      type="radio"
+                      name="tipoCV"
+                      value="especifico"
+                      checked={formData.tipoCV === 'especifico'}
+                      onChange={(e) => setFormData(prev => ({ ...prev, tipoCV: e.target.value }))}
+                      required={showTipoCVOption}
+                      className="w-4 h-4 text-blue-600 mt-1"
+                    />
+                    <div className="ml-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-slate-900 font-bold">Para un puesto específico</span>
+                        <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded font-semibold">
+                          RECOMENDADO
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-700 mb-2">
+                        CV optimizado para una oferta de trabajo concreta
+                      </p>
+                      <div className="bg-white rounded p-3 text-xs text-slate-600 space-y-1">
+                        <p>✓ Keywords específicas del puesto</p>
+                        <p>✓ Logros relevantes destacados</p>
+                        <p>✓ Formato ATS para esa industria</p>
+                        <p>✓ Mayor probabilidad de entrevista</p>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label className="flex items-start p-5 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="tipoCV"
+                      value="general"
+                      checked={formData.tipoCV === 'general'}
+                      onChange={(e) => setFormData(prev => ({ ...prev, tipoCV: e.target.value }))}
+                      required={showTipoCVOption}
+                      className="w-4 h-4 text-blue-600 mt-1"
+                    />
+                    <div className="ml-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-slate-900 font-bold">General (mejorado)</span>
+                      </div>
+                      <p className="text-sm text-slate-700 mb-2">
+                        CV optimizado para aplicar a múltiples puestos
+                      </p>
+                      <div className="bg-slate-50 rounded p-3 text-xs text-slate-600 space-y-1">
+                        <p>✓ Formato profesional moderno</p>
+                        <p>✓ Optimización ATS general</p>
+                        <p>✓ Logros cuantificables destacados</p>
+                        <p>⚠️ No enfocado en puesto específico</p>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </section>
+            )}
+
+            {/* Información del puesto - SOLO SI ES ESPECÍFICO */}
+            {showPuestoFields && (
+              <section>
+                <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' ? '7' :
+                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' ? '6' :
+                   formData.tieneCV === 'si' ? '6' : '5'}. Información del puesto
+                </h4>
+
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
+                  <p className="text-sm font-semibold text-blue-900 mb-1">
+                    📌 Optimizaremos tu CV para este puesto específico
+                  </p>
+                  <p className="text-xs text-blue-700">
+                    Mientras más detalles proporciones, mejor será la optimización
+                  </p>
+                </div>
+
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -466,13 +555,17 @@ export default function App() {
               </section>
             )}
 
-            {/* Información adicional */}
+            {/* Información adicional - PARA ESPECIALIZADA Y PREMIUM */}
             {(formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium') && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' ? '7' : 
-                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' ? '6' : 
-                   formData.tieneCV === 'si' ? '6' : '5'}. Información adicional
+                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'especifico' ? '8' :
+                   formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general' ? '7' :
+                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && formData.tipoCV === 'especifico' ? '7' :
+                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general' ? '6' :
+                   formData.tieneCV === 'si' && formData.tipoCV === 'especifico' ? '7' :
+                   formData.tieneCV === 'si' && formData.tipoCV === 'general' ? '6' :
+                   formData.tipoCV === 'especifico' ? '6' : '5'}. Información adicional
                 </h4>
                 
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
