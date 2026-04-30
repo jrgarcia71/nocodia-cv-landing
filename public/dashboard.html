@@ -500,8 +500,6 @@ header h1 {
     }
 
     const req = selectedRequest;
-    const timestamp = new Date(req.created_at).getTime();
-    const sanitizedEmail = req.email.replace(/[^a-z0-9]/gi, '_');
     
     panel.innerHTML = `
       <h2>Detalles</h2>
@@ -537,13 +535,15 @@ header h1 {
       
       <div class="files">
         <h4>📥 Archivos</h4>
-        <a href="${WORKER_URL}/download/${sanitizedEmail}_cv_${timestamp}.pdf" target="_blank">
-          📄 Descargar CV
-        </a>
-        ${req.tipo_revision === 'premium' ? `
-        <a href="${WORKER_URL}/download/${sanitizedEmail}_linkedin_${timestamp}.pdf" target="_blank">
-          📄 Descargar LinkedIn
-        </a>
+        ${req.cv_filename ? `
+          <a href="${WORKER_URL}/download/${req.cv_filename}" target="_blank">
+            📄 Descargar CV
+          </a>
+        ` : '<p style="color: #94a3b8; font-size: 13px;">No hay archivo CV</p>'}
+        ${req.linkedin_filename ? `
+          <a href="${WORKER_URL}/download/${req.linkedin_filename}" target="_blank">
+            📄 Descargar LinkedIn
+          </a>
         ` : ''}
       </div>
       
