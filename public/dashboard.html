@@ -361,287 +361,289 @@ header h1 {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = 'https://idzvrprgkbsybkhibyss.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkenZycHJna2JzeWJraGlieXNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMzI3ODAsImV4cCI6MjA5MjgwODc4MH0.FQTsEtS6ry6acAVR5ldSAAfORBm5deWhgRTjbdDnWeY';
-const WORKER_URL = 'https://nocodia-cv-worker.jraul-garcia.workers.dev';
+(function() {
+  const SUPABASE_URL = 'https://idzvrprgkbsybkhibyss.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkenZycHJna2JzeWJraGlieXNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyMzI3ODAsImV4cCI6MjA5MjgwODc4MH0.FQTsEtS6ry6acAVR5ldSAAfORBm5deWhgRTjbdDnWeY';
+  const WORKER_URL = 'https://nocodia-cv-worker.jraul-garcia.workers.dev';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let allRequests = [];
-let selectedRequest = null;
-let currentFilter = 'all';
+  let allRequests = [];
+  let selectedRequest = null;
+  let currentFilter = 'all';
 
-window.addEventListener('DOMContentLoaded', () => {
-  loadRequests();
-});
+  window.addEventListener('DOMContentLoaded', function() {
+    loadRequests();
+  });
 
-async function loadRequests() {
-  let query = supabase
-    .from('cv_requests')
-    .select('*')
-    .order('created_at', { ascending: false });
+  async function loadRequests() {
+    let query = sbClient
+      .from('cv_requests')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-  if (currentFilter !== 'all') {
-    query = query.eq('status', currentFilter);
-  }
+    if (currentFilter !== 'all') {
+      query = query.eq('status', currentFilter);
+    }
 
-  const { data, error } = await query;
-  
-  if (error) {
-    console.error('Error:', error);
-    document.getElementById('stats').innerHTML = '<div class="empty-state">Error al cargar datos</div>';
-    return;
-  }
-
-  allRequests = data || [];
-  renderStats();
-  renderFilters();
-  renderRequests();
-}
-
-function renderStats() {
-  const stats = {
-    total: allRequests.length,
-    pendiente: allRequests.filter(r => r.status === 'pendiente_pago').length,
-    pagado: allRequests.filter(r => r.status === 'pagado').length,
-    entregado: allRequests.filter(r => r.status === 'entregado').length
-  };
-
-  document.getElementById('stats').innerHTML = `
-    <div class="stat-card">
-      <h3>Total</h3>
-      <div class="number">${stats.total}</div>
-    </div>
-    <div class="stat-card" style="background: #fef3c7;">
-      <h3>Pendiente Pago</h3>
-      <div class="number" style="color: #92400e;">${stats.pendiente}</div>
-    </div>
-    <div class="stat-card" style="background: #d1fae5;">
-      <h3>Pagado</h3>
-      <div class="number" style="color: #065f46;">${stats.pagado}</div>
-    </div>
-    <div class="stat-card" style="background: #f3f4f6;">
-      <h3>Entregado</h3>
-      <div class="number" style="color: #374151;">${stats.entregado}</div>
-    </div>
-  `;
-}
-
-function renderFilters() {
-  const filters = ['all', 'pendiente_pago', 'pagado', 'procesando', 'entregado'];
-  const labels = {
-    'all': 'Todos',
-    'pendiente_pago': 'Pendiente pago',
-    'pagado': 'Pagado',
-    'procesando': 'Procesando',
-    'entregado': 'Entregado'
-  };
-
-  document.getElementById('filters').innerHTML = filters.map(f => `
-    <button class="filter-btn ${currentFilter === f ? 'active' : ''}" onclick="setFilter('${f}')">
-      ${labels[f]}
-    </button>
-  `).join('');
-}
-
-function setFilter(filter) {
-  currentFilter = filter;
-  loadRequests();
-}
-
-function renderRequests() {
-  const listEl = document.getElementById('requests-list');
-
-  if (allRequests.length === 0) {
-    listEl.innerHTML = '<div class="empty-state">No hay solicitudes con este filtro</div>';
-    return;
-  }
-
-  listEl.innerHTML = allRequests.map(req => {
-    const price = getPrice(req.tipo_revision);
-    const date = new Date(req.created_at).toLocaleDateString('es-ES');
+    const { data, error } = await query;
     
-    return `
-      <div class="request-card ${selectedRequest?.id === req.id ? 'selected' : ''}" 
-           onclick='selectRequest(${JSON.stringify(req).replace(/'/g, "\\'")})'}>
-        <div style="display: flex; justify-content: space-between; align-items: start;">
-          <div style="flex: 1;">
-            <h3>${req.nombre}</h3>
-            <p>${req.email}</p>
-            <div class="badges">
-              <span class="badge badge-${req.tipo_revision}">${req.tipo_revision}</span>
-              ${req.tipo_cv ? `<span class="badge badge-${req.tipo_cv}">${req.tipo_cv === 'especifico' ? '🎯 Específico' : '📄 General'}</span>` : ''}
-              <span class="badge status-${req.status.replace('_', '-')}">${req.status.replace('_', ' ')}</span>
-            </div>
-          </div>
-          <div style="text-align: right;">
-            <div class="price">${price}</div>
-            <div class="date">${date}</div>
-          </div>
-        </div>
+    if (error) {
+      console.error('Error:', error);
+      document.getElementById('stats').innerHTML = '<div class="empty-state">Error al cargar datos</div>';
+      return;
+    }
+
+    allRequests = data || [];
+    renderStats();
+    renderFilters();
+    renderRequests();
+  }
+
+  function renderStats() {
+    const stats = {
+      total: allRequests.length,
+      pendiente: allRequests.filter(r => r.status === 'pendiente_pago').length,
+      pagado: allRequests.filter(r => r.status === 'pagado').length,
+      entregado: allRequests.filter(r => r.status === 'entregado').length
+    };
+
+    document.getElementById('stats').innerHTML = `
+      <div class="stat-card">
+        <h3>Total</h3>
+        <div class="number">${stats.total}</div>
+      </div>
+      <div class="stat-card" style="background: #fef3c7;">
+        <h3>Pendiente Pago</h3>
+        <div class="number" style="color: #92400e;">${stats.pendiente}</div>
+      </div>
+      <div class="stat-card" style="background: #d1fae5;">
+        <h3>Pagado</h3>
+        <div class="number" style="color: #065f46;">${stats.pagado}</div>
+      </div>
+      <div class="stat-card" style="background: #f3f4f6;">
+        <h3>Entregado</h3>
+        <div class="number" style="color: #374151;">${stats.entregado}</div>
       </div>
     `;
-  }).join('');
-}
-
-function selectRequest(req) {
-  selectedRequest = req;
-  renderRequests();
-  renderDetails();
-}
-
-function renderDetails() {
-  const panel = document.getElementById('details-panel');
-
-  if (!selectedRequest) {
-    panel.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 40px 20px;">Selecciona una solicitud</p>';
-    return;
   }
 
-  const req = selectedRequest;
-  const timestamp = new Date(req.created_at).getTime();
-  const sanitizedEmail = req.email.replace(/[^a-z0-9]/gi, '_');
-  
-  panel.innerHTML = `
-    <h2>Detalles</h2>
-    
-    <div class="detail-row">
-      <label>Nombre</label>
-      <div class="value">${req.nombre}</div>
-    </div>
-    
-    <div class="detail-row">
-      <label>Email</label>
-      <div class="value">${req.email}</div>
-    </div>
-    
-    ${req.telefono ? `
-    <div class="detail-row">
-      <label>Teléfono</label>
-      <div class="value">${req.telefono}</div>
-    </div>
-    ` : ''}
-    
-    ${req.puesto ? `
-    <div class="detail-row">
-      <label>Puesto</label>
-      <div class="value">${req.puesto}</div>
-    </div>
-    
-    <div class="detail-row">
-      <label>Industria</label>
-      <div class="value">${req.industria}</div>
-    </div>
-    ` : ''}
-    
-    <div class="files">
-      <h4>📥 Archivos</h4>
-      <a href="${WORKER_URL}/download/${sanitizedEmail}_cv_${timestamp}.pdf" target="_blank">
-        📄 Descargar CV
-      </a>
-      ${req.tipo_revision === 'premium' ? `
-      <a href="${WORKER_URL}/download/${sanitizedEmail}_linkedin_${timestamp}.pdf" target="_blank">
-        📄 Descargar LinkedIn
-      </a>
-      ` : ''}
-    </div>
-    
-    ${req.status === 'pendiente_pago' ? `
-    <div class="action-section">
-      <h4>💳 Enviar Link de Pago</h4>
-      <input type="url" id="payment-link-input" placeholder="Pega el link de PayPhone aquí" />
-      <button class="btn btn-primary" onclick="sendPaymentLink()">
-        📧 Enviar Email al Cliente
+  function renderFilters() {
+    const filters = ['all', 'pendiente_pago', 'pagado', 'procesando', 'entregado'];
+    const labels = {
+      'all': 'Todos',
+      'pendiente_pago': 'Pendiente pago',
+      'pagado': 'Pagado',
+      'procesando': 'Procesando',
+      'entregado': 'Entregado'
+    };
+
+    document.getElementById('filters').innerHTML = filters.map(f => `
+      <button class="filter-btn ${currentFilter === f ? 'active' : ''}" onclick="window.setFilter('${f}')">
+        ${labels[f]}
       </button>
-      <div id="payment-message"></div>
-    </div>
-    ` : ''}
+    `).join('');
+  }
+
+  window.setFilter = function(filter) {
+    currentFilter = filter;
+    loadRequests();
+  };
+
+  function renderRequests() {
+    const listEl = document.getElementById('requests-list');
+
+    if (allRequests.length === 0) {
+      listEl.innerHTML = '<div class="empty-state">No hay solicitudes con este filtro</div>';
+      return;
+    }
+
+    listEl.innerHTML = allRequests.map(req => {
+      const price = getPrice(req.tipo_revision);
+      const date = new Date(req.created_at).toLocaleDateString('es-ES');
+      
+      return `
+        <div class="request-card ${selectedRequest?.id === req.id ? 'selected' : ''}" 
+             onclick='window.selectRequest(${JSON.stringify(req).replace(/'/g, "\\'")})'}>
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div style="flex: 1;">
+              <h3>${req.nombre}</h3>
+              <p>${req.email}</p>
+              <div class="badges">
+                <span class="badge badge-${req.tipo_revision}">${req.tipo_revision}</span>
+                ${req.tipo_cv ? `<span class="badge badge-${req.tipo_cv}">${req.tipo_cv === 'especifico' ? '🎯 Específico' : '📄 General'}</span>` : ''}
+                <span class="badge status-${req.status.replace('_', '-')}">${req.status.replace('_', ' ')}</span>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div class="price">${price}</div>
+              <div class="date">${date}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.selectRequest = function(req) {
+    selectedRequest = req;
+    renderRequests();
+    renderDetails();
+  };
+
+  function renderDetails() {
+    const panel = document.getElementById('details-panel');
+
+    if (!selectedRequest) {
+      panel.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 40px 20px;">Selecciona una solicitud</p>';
+      return;
+    }
+
+    const req = selectedRequest;
+    const timestamp = new Date(req.created_at).getTime();
+    const sanitizedEmail = req.email.replace(/[^a-z0-9]/gi, '_');
     
-    ${req.status === 'pendiente_pago' && req.payment_link ? `
-    <div class="action-section">
-      <h4>✅ Marcar como Pagado</h4>
-      <div class="info-box">
-        <p>Link de pago ya enviado</p>
+    panel.innerHTML = `
+      <h2>Detalles</h2>
+      
+      <div class="detail-row">
+        <label>Nombre</label>
+        <div class="value">${req.nombre}</div>
       </div>
-      <button class="btn btn-success" onclick="markAsPaid()">
-        ✅ Confirmar Pago Recibido
-      </button>
-      <div id="paid-message"></div>
-    </div>
-    ` : ''}
-  `;
-}
-
-async function sendPaymentLink() {
-  const input = document.getElementById('payment-link-input');
-  const messageEl = document.getElementById('payment-message');
-  
-  if (!input.value.trim()) {
-    messageEl.innerHTML = '<div class="message message-error">❌ Debes pegar el link de PayPhone</div>';
-    return;
+      
+      <div class="detail-row">
+        <label>Email</label>
+        <div class="value">${req.email}</div>
+      </div>
+      
+      ${req.telefono ? `
+      <div class="detail-row">
+        <label>Teléfono</label>
+        <div class="value">${req.telefono}</div>
+      </div>
+      ` : ''}
+      
+      ${req.puesto ? `
+      <div class="detail-row">
+        <label>Puesto</label>
+        <div class="value">${req.puesto}</div>
+      </div>
+      
+      <div class="detail-row">
+        <label>Industria</label>
+        <div class="value">${req.industria}</div>
+      </div>
+      ` : ''}
+      
+      <div class="files">
+        <h4>📥 Archivos</h4>
+        <a href="${WORKER_URL}/download/${sanitizedEmail}_cv_${timestamp}.pdf" target="_blank">
+          📄 Descargar CV
+        </a>
+        ${req.tipo_revision === 'premium' ? `
+        <a href="${WORKER_URL}/download/${sanitizedEmail}_linkedin_${timestamp}.pdf" target="_blank">
+          📄 Descargar LinkedIn
+        </a>
+        ` : ''}
+      </div>
+      
+      ${req.status === 'pendiente_pago' ? `
+      <div class="action-section">
+        <h4>💳 Enviar Link de Pago</h4>
+        <input type="url" id="payment-link-input" placeholder="Pega el link de PayPhone aquí" />
+        <button class="btn btn-primary" onclick="window.sendPaymentLink()">
+          📧 Enviar Email al Cliente
+        </button>
+        <div id="payment-message"></div>
+      </div>
+      ` : ''}
+      
+      ${req.status === 'pendiente_pago' && req.payment_link ? `
+      <div class="action-section">
+        <h4>✅ Marcar como Pagado</h4>
+        <div class="info-box">
+          <p>Link de pago ya enviado</p>
+        </div>
+        <button class="btn btn-success" onclick="window.markAsPaid()">
+          ✅ Confirmar Pago Recibido
+        </button>
+        <div id="paid-message"></div>
+      </div>
+      ` : ''}
+    `;
   }
 
-  try {
-    const response = await fetch(`${WORKER_URL}/api/send-payment-link`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        request_id: selectedRequest.id,
-        payment_link: input.value,
-        email: selectedRequest.email,
-        nombre: selectedRequest.nombre,
-        tipo_revision: selectedRequest.tipo_revision
-      })
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      messageEl.innerHTML = '<div class="message message-success">✅ Email enviado al cliente</div>';
-      input.value = '';
-      setTimeout(() => loadRequests(), 2000);
-    } else {
-      messageEl.innerHTML = `<div class="message message-error">❌ ${result.error || 'Error'}</div>`;
+  window.sendPaymentLink = async function() {
+    const input = document.getElementById('payment-link-input');
+    const messageEl = document.getElementById('payment-message');
+    
+    if (!input.value.trim()) {
+      messageEl.innerHTML = '<div class="message message-error">❌ Debes pegar el link de PayPhone</div>';
+      return;
     }
-  } catch (error) {
-    messageEl.innerHTML = '<div class="message message-error">❌ Error de conexión</div>';
-  }
-}
 
-async function markAsPaid() {
-  if (!confirm('¿Confirmar que el cliente ya pagó?')) return;
+    try {
+      const response = await fetch(`${WORKER_URL}/api/send-payment-link`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          request_id: selectedRequest.id,
+          payment_link: input.value,
+          email: selectedRequest.email,
+          nombre: selectedRequest.nombre,
+          tipo_revision: selectedRequest.tipo_revision
+        })
+      });
 
-  const messageEl = document.getElementById('paid-message');
+      const result = await response.json();
 
-  try {
-    const response = await fetch(`${WORKER_URL}/api/mark-paid`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ request_id: selectedRequest.id })
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      messageEl.innerHTML = '<div class="message message-success">✅ Marcado como PAGADO</div>';
-      setTimeout(() => {
-        selectedRequest = null;
-        loadRequests();
-      }, 2000);
-    } else {
-      messageEl.innerHTML = `<div class="message message-error">❌ ${result.error || 'Error'}</div>`;
+      if (response.ok) {
+        messageEl.innerHTML = '<div class="message message-success">✅ Email enviado al cliente</div>';
+        input.value = '';
+        setTimeout(() => loadRequests(), 2000);
+      } else {
+        messageEl.innerHTML = `<div class="message message-error">❌ ${result.error || 'Error'}</div>`;
+      }
+    } catch (error) {
+      messageEl.innerHTML = '<div class="message message-error">❌ Error de conexión</div>';
     }
-  } catch (error) {
-    messageEl.innerHTML = '<div class="message message-error">❌ Error de conexión</div>';
-  }
-}
+  };
 
-function getPrice(tipo) {
-  if (tipo === 'premium') return '$20';
-  if (tipo === 'especializada') return '$12';
-  if (tipo === 'generica') return 'GRATIS';
-  return '$15';
-}
+  window.markAsPaid = async function() {
+    if (!confirm('¿Confirmar que el cliente ya pagó?')) return;
+
+    const messageEl = document.getElementById('paid-message');
+
+    try {
+      const response = await fetch(`${WORKER_URL}/api/mark-paid`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ request_id: selectedRequest.id })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        messageEl.innerHTML = '<div class="message message-success">✅ Marcado como PAGADO</div>';
+        setTimeout(() => {
+          selectedRequest = null;
+          loadRequests();
+        }, 2000);
+      } else {
+        messageEl.innerHTML = `<div class="message message-error">❌ ${result.error || 'Error'}</div>`;
+      }
+    } catch (error) {
+      messageEl.innerHTML = '<div class="message message-error">❌ Error de conexión</div>';
+    }
+  };
+
+  function getPrice(tipo) {
+    if (tipo === 'premium') return '$20';
+    if (tipo === 'especializada') return '$12';
+    if (tipo === 'generica') return 'GRATIS';
+    return '$15';
+  }
+})();
 </script>
 
 </body>
