@@ -282,6 +282,15 @@ header h1 {
   background: #059669;
 }
 
+.btn-ai {
+  background: #8b5cf6;
+  color: white;
+}
+
+.btn-ai:hover {
+  background: #7c3aed;
+}
+
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -330,6 +339,146 @@ header h1 {
   padding: 40px;
   color: #64748b;
 }
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.modal.active {
+  display: block;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 2% auto;
+  padding: 0;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 1200px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: 24px;
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.close {
+  color: white;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.close:hover {
+  color: #e2e8f0;
+}
+
+.modal-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tab-btn {
+  padding: 8px 16px;
+  border: none;
+  background: white;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  background: #e2e8f0;
+}
+
+.tab-btn.active {
+  background: #2563eb;
+  color: white;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.cv-preview {
+  background: white;
+  padding: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  min-height: 400px;
+}
+
+.modal-footer {
+  padding: 20px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-secondary {
+  background: #64748b;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #475569;
+}
+
+.spinner {
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #2563eb;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
 </head>
 <body>
@@ -359,6 +508,35 @@ header h1 {
   </div>
 </div>
 
+<!-- Modal de Preview -->
+<div id="preview-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Preview - CV Optimizado</h2>
+      <span class="close" onclick="window.closePreview()">&times;</span>
+    </div>
+    
+    <div class="modal-tabs" id="modal-tabs">
+      <!-- Tabs se generan dinámicamente -->
+    </div>
+    
+    <div class="modal-body">
+      <div id="tab-spanish" class="tab-content active">
+        <div id="preview-spanish" class="cv-preview"></div>
+      </div>
+      <div id="tab-english" class="tab-content">
+        <div id="preview-english" class="cv-preview"></div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="window.closePreview()">Cancelar</button>
+      <button class="btn btn-ai" onclick="window.regenerateCV()">🔄 Regenerar</button>
+      <button class="btn btn-success" onclick="window.approveAndSend()">✅ Aprobar y Enviar</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function() {
@@ -371,6 +549,7 @@ header h1 {
   let allRequests = [];
   let selectedRequest = null;
   let currentFilter = 'all';
+  let currentResult = null;
 
   window.addEventListener('DOMContentLoaded', function() {
     loadRequests();
@@ -547,7 +726,7 @@ header h1 {
         ` : ''}
       </div>
       
-      ${req.status === 'pendiente_pago' ? `
+      ${req.status === 'pendiente_pago' && !req.payment_link ? `
       <div class="action-section">
         <h4>💳 Enviar Link de Pago</h4>
         <input type="url" id="payment-link-input" placeholder="Pega el link de PayPhone aquí" />
@@ -570,81 +749,8 @@ header h1 {
         <div id="paid-message"></div>
       </div>
       ` : ''}
-    `;
-  }
-
-  window.sendPaymentLink = async function() {
-    const input = document.getElementById('payment-link-input');
-    const messageEl = document.getElementById('payment-message');
-    
-    if (!input.value.trim()) {
-      messageEl.innerHTML = '<div class="message message-error">❌ Debes pegar el link de PayPhone</div>';
-      return;
-    }
-
-    try {
-      const response = await fetch(`${WORKER_URL}/api/send-payment-link`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          request_id: selectedRequest.id,
-          payment_link: input.value,
-          email: selectedRequest.email,
-          nombre: selectedRequest.nombre,
-          tipo_revision: selectedRequest.tipo_revision
-        })
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        messageEl.innerHTML = '<div class="message message-success">✅ Email enviado al cliente</div>';
-        input.value = '';
-        setTimeout(() => loadRequests(), 2000);
-      } else {
-        messageEl.innerHTML = `<div class="message message-error">❌ ${result.error || 'Error'}</div>`;
-      }
-    } catch (error) {
-      messageEl.innerHTML = '<div class="message message-error">❌ Error de conexión</div>';
-    }
-  };
-
-  window.markAsPaid = async function() {
-    if (!confirm('¿Confirmar que el cliente ya pagó?')) return;
-
-    const messageEl = document.getElementById('paid-message');
-
-    try {
-      const response = await fetch(`${WORKER_URL}/api/mark-paid`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ request_id: selectedRequest.id })
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        messageEl.innerHTML = '<div class="message message-success">✅ Marcado como PAGADO</div>';
-        setTimeout(() => {
-          selectedRequest = null;
-          loadRequests();
-        }, 2000);
-      } else {
-        messageEl.innerHTML = `<div class="message message-error">❌ ${result.error || 'Error'}</div>`;
-      }
-    } catch (error) {
-      messageEl.innerHTML = '<div class="message message-error">❌ Error de conexión</div>';
-    }
-  };
-
-  function getPrice(tipo) {
-    if (tipo === 'premium') return '$20';
-    if (tipo === 'especializada') return '$12';
-    if (tipo === 'generica') return 'GRATIS';
-    return '$15';
-  }
-})();
-</script>
-
-</body>
-</html>
+      
+      ${req.status === 'pagado' ? `
+      <div class="action-section">
+        <h4>🤖 Procesamiento Automático</h4>
+        <div class="info-box">
