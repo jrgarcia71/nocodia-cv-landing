@@ -754,3 +754,217 @@ header h1 {
       <div class="action-section">
         <h4>🤖 Procesamiento Automático</h4>
         <div class="info-box">
+          <p>Cliente ha pagado. Procesa su CV con IA.</p>
+        </div>
+        <button class="btn btn-ai" onclick="window.processWithAI()" id="process-btn">
+          🤖 Procesar con IA
+        </button>
+        <div id="process-message"></div>
+      </div>
+      ` : ''}
+    `;
+  }
+
+  window.sendPaymentLink = async function() {
+    const input = document.getElementById('payment-link-input');
+    const messageEl = document.getElementById('payment-message');
+    
+    if (!input.value.trim()) {
+      messageEl.innerHTML = '<div class="message message-error">❌ Debes pegar el link de PayPhone</div>';
+      return;
+    }
+
+    try {
+      const response = await fetch(`${WORKER_URL}/api/send-payment-link`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          request_id: selectedRequest.id,
+          payment_link: input.value,
+          email: selectedRequest.email,
+          nombre: selectedRequest.nombre,
+          tipo_revision: selectedRequest.tipo_revision
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        messageEl.innerHTML = '<div class="message message-success">✅ Email enviado al cliente</div>';
+        input.value = '';
+        setTimeout(() => loadRequests(), 2000);
+      } else {
+        messageEl.innerHTML = `<div class="message message-error">❌ ${result.error || 'Error'}</div>`;
+      }
+    } catch (error) {
+      messageEl.innerHTML = '<div class="message message-error">❌ Error de conexión</div>';
+    }
+  };
+
+  window.markAsPaid = async function() {
+    if (!confirm('¿Confirmar que el cliente ya pagó?')) return;
+
+    const messageEl = document.getElementById('paid-message');
+
+    try {
+      const response = await fetch(`${WORKER_URL}/api/mark-paid`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ request_id: selectedRequest.id })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        messageEl.innerHTML = '<div class="message message-success">✅ Marcado como PAGADO</div>';
+        setTimeout(() => {
+          selectedRequest = null;
+          loadRequests();
+        }, 2000);
+      } else {
+        messageEl.innerHTML = `<div class="message message-error">❌ ${result.error || 'Error'}</div>`;
+      }
+    } catch (error) {
+      messageEl.innerHTML = '<div class="message message-error">❌ Error de conexión</div>';
+    }
+  };
+
+  window.processWithAI = async function() {
+    const btn = document.getElementById('process-btn');
+    const messageEl = document.getElementById('process-message');
+
+    btn.disabled = true;
+    btn.textContent = '⏳ Procesando...';
+    messageEl.innerHTML = '<div class="spinner"></div><p style="text-align: center; color: #64748b;">Claude está analizando el CV... Esto puede tomar 1-2 minutos.</p>';
+
+    try {
+      const response = await fetch(`${WORKER_URL}/api/process-cv`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ request_id: selectedRequest.id })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        currentResult = result.result;
+        showPreview(result.result);
+        btn.disabled = false;
+        btn.textContent = '🤖 Procesar con IA';
+        messageEl.innerHTML = '<div class="message message-success">✅ CV procesado exitosamente</div>';
+      } else {
+        btn.disabled = false;
+        btn.textContent = '🤖 Procesar con IA';
+        messageEl.innerHTML = `<div class="message message-error">❌ ${result.error || 'Error al procesar'}</div>`;
+      }
+    } catch (error) {
+      btn.disabled = false;
+      btn.textContent = '🤖 Procesar con IA';
+      messageEl.innerHTML = '<div class="message message-error">❌ Error de conexión</div>';
+    }
+  };
+
+  function showPreview(result) {
+    const modal = document.getElementById('preview-modal');
+    const tabsContainer = document.getElementById('modal-tabs');
+    const spanishPreview = document.getElementById('preview-spanish');
+    const englishPreview = document.getElementById('preview-english');
+
+    // Mostrar tabs según si es Premium o no
+    if (result.isPremium && result.english) {
+      tabsContainer.innerHTML = `
+        <button class="tab-btn active" onclick="window.switchTab('spanish')">🇪🇸 Español</button>
+        <button class="tab-btn" onclick="window.switchTab('english')">🇬🇧 English</button>
+      `;
+      englishPreview.innerHTML = result.english;
+    } else {
+      tabsContainer.innerHTML = `
+        <button class="tab-btn active" onclick="window.switchTab('spanish')">🇪🇸 Español</button>
+      `;
+    }
+
+    spanishPreview.innerHTML = result.spanish;
+    modal.classList.add('active');
+  }
+
+  window.switchTab = function(tab) {
+    const tabs = document.querySelectorAll('.tab-btn');
+    const contents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(t => t.classList.remove('active'));
+    contents.forEach(c => c.classList.remove('active'));
+
+    if (tab === 'spanish') {
+      tabs[0].classList.add('active');
+      document.getElementById('tab-spanish').classList.add('active');
+    } else {
+      tabs[1].classList.add('active');
+      document.getElementById('tab-english').classList.add('active');
+    }
+  };
+
+  window.closePreview = function() {
+    document.getElementById('preview-modal').classList.remove('active');
+  };
+
+  window.regenerateCV = async function() {
+    if (!confirm('¿Regenerar el CV? Esto llamará de nuevo a Claude API.')) return;
+    
+    document.getElementById('preview-modal').classList.remove('active');
+    window.processWithAI();
+  };
+
+  window.approveAndSend = async function() {
+    if (!confirm('¿Enviar este CV al cliente? No podrás editarlo después.')) return;
+
+    const modal = document.getElementById('preview-modal');
+    const footer = modal.querySelector('.modal-footer');
+    footer.innerHTML = '<div class="spinner"></div><p style="text-align: center; color: #64748b;">Enviando email...</p>';
+
+    try {
+      const response = await fetch(`${WORKER_URL}/api/send-result`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          request_id: selectedRequest.id,
+          result_spanish: currentResult.spanish,
+          result_english: currentResult.english || null
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        modal.classList.remove('active');
+        alert('✅ CV enviado al cliente exitosamente');
+        selectedRequest = null;
+        loadRequests();
+      } else {
+        footer.innerHTML = `
+          <button class="btn btn-secondary" onclick="window.closePreview()">Cancelar</button>
+          <button class="btn btn-ai" onclick="window.regenerateCV()">🔄 Regenerar</button>
+          <button class="btn btn-success" onclick="window.approveAndSend()">✅ Aprobar y Enviar</button>
+        `;
+        alert('❌ Error al enviar: ' + (result.error || 'Error desconocido'));
+      }
+    } catch (error) {
+      footer.innerHTML = `
+        <button class="btn btn-secondary" onclick="window.closePreview()">Cancelar</button>
+        <button class="btn btn-ai" onclick="window.regenerateCV()">🔄 Regenerar</button>
+        <button class="btn btn-success" onclick="window.approveAndSend()">✅ Aprobar y Enviar</button>
+      `;
+      alert('❌ Error de conexión');
+    }
+  };
+
+  function getPrice(tipo) {
+    if (tipo === 'premium') return '$20';
+    if (tipo === 'especializada') return '$12';
+    if (tipo === 'generica') return 'GRATIS';
+    return '$15';
+  }
+})();
+</script>
+
+</body>
+</html>
