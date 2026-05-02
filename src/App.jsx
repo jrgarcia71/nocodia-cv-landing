@@ -1,695 +1,581 @@
-import { useState } from 'react';
-import { Upload, CheckCircle, AlertCircle } from 'lucide-react';
+import { useState } from 'react'
+import './index.css'
 
-export default function App() {
+function App() {
+  const [language, setLanguage] = useState('es')
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
     telefono: '',
-    tieneCV: 'si',
-    tipoRevision: 'generica',
-    tipoCV: '', // NUEVO: 'especifico' o 'general'
+    tieneCV: '',
+    tipoRevision: '',
+    tipoCV: '',
     puesto: '',
     empresa: '',
     industria: '',
     linkOferta: '',
-    infoAdicional: '',
-    cvFile: null,
-    linkedinFile: null
-  });
-  
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
-  const [wordCount, setWordCount] = useState(0);
+    infoAdicional: ''
+  })
+
+  const [cvFile, setCvFile] = useState(null)
+  const [linkedinFile, setLinkedinFile] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState({ type: '', text: '' })
+
+  const t = {
+    es: {
+      title: '🚀 Nocodia CV',
+      subtitle: 'Optimización de CV con Inteligencia Artificial',
+      spamWarning: 'IMPORTANTE: Revisa tu carpeta de SPAM después de enviar. Los emails automáticos a veces caen ahí.',
+      nombre: 'Nombre completo',
+      email: 'Email',
+      emailHelper: 'Te enviaremos tu CV optimizado a este email',
+      telefono: 'Teléfono (opcional)',
+      tieneCV: '¿Tienes CV actual?',
+      tieneCVSi: 'Sí, tengo CV',
+      tieneCVNo: 'No tengo CV, necesito crearlo',
+      tipoRevision: '¿Qué tipo de revisión necesitas?',
+      generica: 'Revisión Genérica',
+      genericaDesc: 'Análisis general de tu CV con recomendaciones básicas. Una sola vez por persona.',
+      especializada: 'CV Especializado',
+      especializadaDesc: 'CV optimizado para ATS y reclutadores. Formato profesional con logros cuantificables.',
+      premium: 'CV Premium Bilingüe',
+      premiumDesc: '🌎 CV + LinkedIn en ESPAÑOL E INGLÉS',
+      premiumBullets: '¿Aplicando a multinacionales? ¿Remote work? Este es tu servicio.\n✅ CV optimizado completo (ambos idiomas)\n✅ Perfil LinkedIn mejorado (ambos idiomas)\n✅ Elevator pitch + mensajes de conexión\n✅ Estrategia de posicionamiento internacional',
+      premiumHighlight: '💡 El único servicio que entrega CVs nativos profesionales en ambos idiomas. No traducciones automáticas de Google.',
+      uploadCV: 'Sube tu CV actual',
+      uploadCVLabel: 'Click para seleccionar archivo PDF',
+      uploadCVHelper: 'Solo archivos PDF, máximo 10MB',
+      tipoBusqueda: '¿Para qué tipo de búsqueda?',
+      especifico: 'Puesto específico',
+      especificoDesc: 'Tengo una oferta o empresa objetivo clara',
+      general: 'Búsqueda general',
+      generalDesc: 'Quiero estar preparado para varias oportunidades',
+      puesto: '¿A qué puesto aplicarás?',
+      empresa: 'Empresa objetivo (opcional)',
+      industria: '¿En qué industria?',
+      linkOferta: 'Link de la oferta (opcional)',
+      industriaGeneral: '¿En qué industria buscas?',
+      uploadLinkedIn: 'Sube PDF de tu perfil LinkedIn',
+      uploadLinkedInHelper: 'Exporta tu LinkedIn como PDF desde tu perfil',
+      infoAdicional: 'Información adicional (logros, certificaciones, contexto)',
+      infoAdicionalPlaceholder: 'Ej: Lideré equipo de 15 personas, aumenté ventas en 40%, certificado PMP, etc.',
+      infoAdicionalHelper: 'Esta información es CLAVE para generar un CV impactante. Mientras más detalles, mejor.',
+      submit: 'Enviar Solicitud',
+      submitting: '⏳ Enviando...',
+      free: 'GRATIS',
+      fileSelected: '✅'
+    },
+    en: {
+      title: '🚀 Nocodia CV',
+      subtitle: 'AI-Powered Resume Optimization',
+      spamWarning: 'IMPORTANT: Check your SPAM folder after submitting. Automated emails sometimes end up there.',
+      nombre: 'Full name',
+      email: 'Email',
+      emailHelper: "We'll send your optimized resume to this email",
+      telefono: 'Phone (optional)',
+      tieneCV: 'Do you have a current resume?',
+      tieneCVSi: 'Yes, I have a resume',
+      tieneCVNo: "No, I need to create one",
+      tipoRevision: 'What type of review do you need?',
+      generica: 'Generic Review',
+      genericaDesc: 'General resume analysis with basic recommendations. One time per person.',
+      especializada: 'Specialized Resume',
+      especializadaDesc: 'ATS-optimized resume for recruiters. Professional format with quantifiable achievements.',
+      premium: 'Bilingual Premium Resume',
+      premiumDesc: '🌎 Resume + LinkedIn in SPANISH AND ENGLISH',
+      premiumBullets: 'Applying to multinationals? Remote work? This is your service.\n✅ Complete optimized resume (both languages)\n✅ Enhanced LinkedIn profile (both languages)\n✅ Elevator pitch + connection messages\n✅ International positioning strategy',
+      premiumHighlight: "💡 The only service delivering native professional resumes in both languages. Not Google's automatic translations.",
+      uploadCV: 'Upload your current resume',
+      uploadCVLabel: 'Click to select PDF file',
+      uploadCVHelper: 'PDF files only, max 10MB',
+      tipoBusqueda: 'What type of job search?',
+      especifico: 'Specific position',
+      especificoDesc: 'I have a clear job offer or target company',
+      general: 'General search',
+      generalDesc: 'I want to be ready for various opportunities',
+      puesto: 'What position are you applying for?',
+      empresa: 'Target company (optional)',
+      industria: 'What industry?',
+      linkOferta: 'Job posting link (optional)',
+      industriaGeneral: 'What industry are you targeting?',
+      uploadLinkedIn: 'Upload your LinkedIn profile PDF',
+      uploadLinkedInHelper: 'Export your LinkedIn as PDF from your profile',
+      infoAdicional: 'Additional information (achievements, certifications, context)',
+      infoAdicionalPlaceholder: 'Ex: Led team of 15 people, increased sales by 40%, PMP certified, etc.',
+      infoAdicionalHelper: 'This information is KEY to generating an impactful resume. The more details, the better.',
+      submit: 'Submit Request',
+      submitting: '⏳ Submitting...',
+      free: 'FREE',
+      fileSelected: '✅'
+    }
+  }
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
 
   const handleFileChange = (e, fileType) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData(prev => ({ ...prev, [fileType]: file }));
+    const file = e.target.files[0]
+    if (fileType === 'cv') {
+      setCvFile(file)
+    } else {
+      setLinkedinFile(file)
     }
-  };
-
-  const handleInfoChange = (e) => {
-    const text = e.target.value;
-    const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-    
-    if (words <= 500) {
-      setFormData(prev => ({ ...prev, infoAdicional: text }));
-      setWordCount(words);
-    }
-  };
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus(null);
+    e.preventDefault()
+    setLoading(true)
+    setMessage({ type: '', text: '' })
+
+    const submitData = new FormData()
+    Object.keys(formData).forEach(key => {
+      if (formData[key]) submitData.append(key, formData[key])
+    })
+    
+    submitData.append('formLanguage', language)
+    
+    if (cvFile) submitData.append('cvFile', cvFile)
+    if (linkedinFile) submitData.append('linkedinFile', linkedinFile)
 
     try {
-      const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
-        if (formData[key]) {
-          formDataToSend.append(key, formData[key]);
-        }
-      });
-
       const response = await fetch('https://nocodia-cv-worker.jraul-garcia.workers.dev/api/submit', {
         method: 'POST',
-        body: formDataToSend
-      });
+        body: submitData
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (response.ok) {
-        setSubmitStatus({ type: 'success', message: result.message });
-        // Reset form
+        setMessage({ type: 'success', text: result.message })
         setFormData({
           nombre: '',
           email: '',
           telefono: '',
-          tieneCV: 'si',
-          tipoRevision: 'generica',
+          tieneCV: '',
+          tipoRevision: '',
           tipoCV: '',
           puesto: '',
           empresa: '',
           industria: '',
           linkOferta: '',
-          infoAdicional: '',
-          cvFile: null,
-          linkedinFile: null
-        });
-        setWordCount(0);
+          infoAdicional: ''
+        })
+        setCvFile(null)
+        setLinkedinFile(null)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       } else {
-        setSubmitStatus({ type: 'error', message: result.error || 'Error al procesar tu solicitud' });
+        setMessage({ type: 'error', text: result.error || 'Error al enviar. Intenta nuevamente.' })
       }
     } catch (error) {
-      setSubmitStatus({ type: 'error', message: 'Error de conexión. Intenta nuevamente.' });
+      setMessage({ type: 'error', text: 'Error de conexión. Verifica tu internet e intenta nuevamente.' })
     } finally {
-      setIsSubmitting(false);
+      setLoading(false)
     }
-  };
+  }
 
-  const getPrice = () => {
-    if (formData.tipoRevision === 'generica') return 'GRATIS*';
-    if (formData.tipoRevision === 'especializada') return '$12';
-    if (formData.tipoRevision === 'basico') return '$15';
-    if (formData.tipoRevision === 'premium') return '$20';
-    return '';
-  };
-
-  // NUEVO: Determinar si debe mostrar opción específico/general
-  const showTipoCVOption = formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium';
-  
-  // NUEVO: Determinar si debe mostrar campos de puesto
-  const showPuestoFields = formData.tipoCV === 'especifico';
+  const shouldShowCVFile = formData.tieneCV === (language === 'es' ? 'si' : 'yes')
+  const shouldShowTipoCV = formData.tipoRevision === (language === 'es' ? 'especializada' : 'specialized') || formData.tipoRevision === 'premium'
+  const shouldShowPuestoEspecifico = formData.tipoCV === (language === 'es' ? 'especifico' : 'specific')
+  const shouldShowIndustriaGeneral = formData.tipoCV === (language === 'es' ? 'general' : 'general')
+  const shouldShowLinkedInFile = formData.tipoRevision === 'premium'
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-      {/* Header */}
-      <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-purple-800 p-5">
+      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+        {/* Header with Language Selector */}
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-10 text-center relative">
+          <div className="absolute top-4 right-4 flex gap-2">
+            <button
+              onClick={() => setLanguage('es')}
+              className={`px-3 py-1 rounded ${language === 'es' ? 'bg-white text-blue-600 font-bold' : 'bg-blue-500 hover:bg-blue-400'}`}
+            >
+              🇪🇸 ES
+            </button>
+            <button
+              onClick={() => setLanguage('en')}
+              className={`px-3 py-1 rounded ${language === 'en' ? 'bg-white text-blue-600 font-bold' : 'bg-blue-500 hover:bg-blue-400'}`}
+            >
+              🇬🇧 EN
+            </button>
+          </div>
+          <h1 className="text-4xl font-bold mb-2">{t[language].title}</h1>
+          <p className="text-lg opacity-95">{t[language].subtitle}</p>
+        </div>
+
+        {/* Form Container */}
+        <div className="p-8">
+          {/* Spam Warning */}
+          <div className="bg-yellow-50 border border-yellow-400 rounded-lg p-4 mb-6">
+            <p className="text-sm text-yellow-800">
+              <strong>⚠️ {t[language].spamWarning.split(':')[0]}:</strong> {t[language].spamWarning.split(':')[1]}
+            </p>
+          </div>
+
+          {/* Messages */}
+          {message.text && (
+            <div className={`p-4 rounded-lg mb-6 ${message.type === 'success' ? 'bg-green-50 text-green-800 border-l-4 border-green-500' : 'bg-red-50 text-red-800 border-l-4 border-red-500'}`}>
+              {message.text}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Nombre */}
             <div>
-              <h1 className="text-2xl font-serif font-bold text-slate-900">Nocodia CV</h1>
-              <p className="text-sm text-slate-600 mt-1">Optimizado con Inteligencia Artificial</p>
+              <label className="block font-semibold mb-2 text-gray-700">
+                {t[language].nombre} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="nombre"
+                value={formData.nombre}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition"
+                placeholder={language === 'es' ? 'Juan García' : 'John Smith'}
+              />
             </div>
-            <div className="text-right">
-              <p className="text-sm text-slate-600">Consultas</p>
-              <a href="mailto:jrgarcia@nocodia.net" className="text-sm font-medium text-blue-700 hover:text-blue-800">
-                jrgarcia@nocodia.net
-              </a>
+
+            {/* Email */}
+            <div>
+              <label className="block font-semibold mb-2 text-gray-700">
+                {t[language].email} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition"
+                placeholder={language === 'es' ? 'juan@ejemplo.com' : 'john@example.com'}
+              />
+              <p className="text-sm text-gray-500 mt-1">{t[language].emailHelper}</p>
             </div>
-          </div>
-        </div>
-      </header>
 
-      {/* Hero */}
-      <section className="max-w-5xl mx-auto px-6 py-16">
-        <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-serif font-bold text-slate-900 mb-6 leading-tight">
-            Tu CV Profesional<br />
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Potenciado por IA
-            </span>
-          </h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Análisis automático, optimización ATS, y CVs personalizados para destacar en tu industria
-          </p>
-        </div>
-
-        {/* Pricing Cards - ACTUALIZADAS */}
-        <div className="grid md:grid-cols-4 gap-4 mb-16">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-            <div className="text-sm font-semibold text-blue-600 uppercase tracking-wide mb-2">Revisión</div>
-            <div className="text-3xl font-bold text-slate-900 mb-2">GRATIS*</div>
-            <p className="text-sm text-slate-600">Análisis genérico de tu CV actual</p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-            <div className="text-sm font-semibold text-indigo-600 uppercase tracking-wide mb-2">Especializada</div>
-            <div className="text-3xl font-bold text-slate-900 mb-2">$12</div>
-            <p className="text-sm text-slate-600 mb-2">CV reescrito para:</p>
-            <p className="text-xs text-slate-500">• Puesto específico<br/>• Mejora general</p>
-            <p className="text-xs text-slate-400 mt-2">(Tú eliges)</p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-            <div className="text-sm font-semibold text-purple-600 uppercase tracking-wide mb-2">Básico</div>
-            <div className="text-3xl font-bold text-slate-900 mb-2">$15</div>
-            <p className="text-sm text-slate-600">CV nuevo desde cero con formulario</p>
-          </div>
-          
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-6 shadow-lg border-2 border-blue-700 relative overflow-hidden">
-            <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded">
-              ⭐ RECOMENDADO
+            {/* Teléfono */}
+            <div>
+              <label className="block font-semibold mb-2 text-gray-700">
+                {t[language].telefono}
+              </label>
+              <input
+                type="tel"
+                name="telefono"
+                value={formData.telefono}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none transition"
+                placeholder="+593 99 123 4567"
+              />
             </div>
-            <div className="text-sm font-semibold text-blue-100 uppercase tracking-wide mb-2">Premium</div>
-            <div className="text-3xl font-bold text-white mb-2">$20</div>
-            <p className="text-sm text-blue-100 mb-2">Con LinkedIn PDF</p>
-            <p className="text-xs text-blue-200">• Puesto específico<br/>• Mejora general</p>
-            <p className="text-xs text-blue-300 mt-2">(Tú eliges)</p>
-          </div>
-        </div>
 
-        {/* Form */}
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-8 py-6">
-            <h3 className="text-2xl font-serif font-bold text-white">Solicita tu CV</h3>
-            <p className="text-slate-300 mt-1">Completa el formulario y recibe tu análisis</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="p-8 space-y-8">
-            {/* Sección 1: Información Básica */}
-            <section>
-              <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                1. Información Básica
-              </h4>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Nombre completo *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.nombre}
-                    onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="Juan Pérez"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="tu@email.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Teléfono
-                  </label>
-                  <input
-                    type="tel"
-                    value={formData.telefono}
-                    onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder="+593 99 123 4567"
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* Sección 2: ¿Tienes CV? */}
-            <section>
-              <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                2. ¿Tienes CV actual?
-              </h4>
+            {/* ¿Tienes CV? */}
+            <div>
+              <label className="block font-semibold mb-2 text-gray-700">
+                {t[language].tieneCV} <span className="text-red-500">*</span>
+              </label>
               <div className="space-y-3">
-                <label className="flex items-center p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                <label className="flex items-start p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                   <input
                     type="radio"
                     name="tieneCV"
-                    value="si"
-                    checked={formData.tieneCV === 'si'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'generica', tipoCV: '' }))}
-                    className="w-4 h-4 text-blue-600"
+                    value={language === 'es' ? 'si' : 'yes'}
+                    checked={formData.tieneCV === (language === 'es' ? 'si' : 'yes')}
+                    onChange={handleInputChange}
+                    required
+                    className="mt-1 mr-3"
                   />
-                  <span className="ml-3 text-slate-900 font-medium">Sí, tengo CV para revisar</span>
+                  <span className="font-medium">✅ {t[language].tieneCVSi}</span>
                 </label>
-                <label className="flex items-center p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                <label className="flex items-start p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                   <input
                     type="radio"
                     name="tieneCV"
-                    value="no"
+                    value={language === 'es' ? 'no' : 'no'}
                     checked={formData.tieneCV === 'no'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'basico', tipoCV: '' }))}
-                    className="w-4 h-4 text-blue-600"
+                    onChange={handleInputChange}
+                    className="mt-1 mr-3"
                   />
-                  <span className="ml-3 text-slate-900 font-medium">No, necesito crear uno desde cero</span>
+                  <span className="font-medium">❌ {t[language].tieneCVNo}</span>
                 </label>
               </div>
-            </section>
+            </div>
 
-            {/* Sección 3: Upload CV (si tiene CV) */}
-            {formData.tieneCV === 'si' && (
-              <section>
-                <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  3. Sube tu CV actual
-                </h4>
-                <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
-                  <Upload className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                  <label className="cursor-pointer">
-                    <span className="text-blue-600 font-medium hover:text-blue-700">
-                      Selecciona tu CV
-                    </span>
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      onChange={(e) => handleFileChange(e, 'cvFile')}
-                      className="hidden"
-                      required={formData.tieneCV === 'si'}
-                    />
-                  </label>
-                  <p className="text-sm text-slate-500 mt-2">PDF, máximo 5MB</p>
-                  {formData.cvFile && (
-                    <p className="text-sm text-green-600 mt-3 font-medium">
-                      ✓ {formData.cvFile.name}
+            {/* Tipo de Revisión */}
+            <div>
+              <label className="block font-semibold mb-2 text-gray-700">
+                {t[language].tipoRevision} <span className="text-red-500">*</span>
+              </label>
+              <div className="space-y-3">
+                {/* Genérica */}
+                <label className="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                  <input
+                    type="radio"
+                    name="tipoRevision"
+                    value={language === 'es' ? 'generica' : 'generic'}
+                    checked={formData.tipoRevision === (language === 'es' ? 'generica' : 'generic')}
+                    onChange={handleInputChange}
+                    required
+                    className="mr-3"
+                  />
+                  <div className="inline-flex items-center justify-between w-full">
+                    <span className="font-semibold">📋 {t[language].generica}</span>
+                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-md text-sm font-semibold">{t[language].free}</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2 ml-6">{t[language].genericaDesc}</p>
+                </label>
+
+                {/* Especializada */}
+                <label className="block p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                  <input
+                    type="radio"
+                    name="tipoRevision"
+                    value={language === 'es' ? 'especializada' : 'specialized'}
+                    checked={formData.tipoRevision === (language === 'es' ? 'especializada' : 'specialized')}
+                    onChange={handleInputChange}
+                    className="mr-3"
+                  />
+                  <div className="inline-flex items-center justify-between w-full">
+                    <span className="font-semibold">🎯 {t[language].especializada}</span>
+                    <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm font-semibold">$12</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2 ml-6">{t[language].especializadaDesc}</p>
+                </label>
+
+                {/* Premium */}
+                <label className="block p-4 border-2 border-yellow-400 rounded-lg cursor-pointer bg-gradient-to-r from-yellow-50 to-blue-50 hover:shadow-lg transition">
+                  <input
+                    type="radio"
+                    name="tipoRevision"
+                    value="premium"
+                    checked={formData.tipoRevision === 'premium'}
+                    onChange={handleInputChange}
+                    className="mr-3"
+                  />
+                  <div className="inline-flex items-center justify-between w-full">
+                    <span className="font-semibold">⭐ {t[language].premium}</span>
+                    <span className="bg-yellow-500 text-white px-4 py-1 rounded-md text-base font-bold">$20</span>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800 mt-2 ml-6">
+                    {t[language].premiumDesc}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1 ml-6 whitespace-pre-line">
+                    {t[language].premiumBullets}
+                  </p>
+                  <div className="bg-yellow-100 border-l-4 border-yellow-500 p-3 mt-3 ml-6 rounded">
+                    <p className="text-xs text-yellow-900">
+                      {t[language].premiumHighlight}
                     </p>
-                  )}
-                </div>
-              </section>
-            )}
-
-            {/* Sección 3.5: Upload LinkedIn (solo para premium) */}
-            {formData.tipoRevision === 'premium' && (
-              <section>
-                <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' ? '4' : '3'}. Sube tu LinkedIn PDF
-                </h4>
-                <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-300 rounded-lg p-6">
-                  <div className="bg-white rounded-lg p-4 mb-4 border border-purple-200">
-                    <p className="font-semibold text-purple-900 mb-2 text-sm">📱 Cómo descargar tu LinkedIn:</p>
-                    <ol className="text-sm text-slate-700 space-y-1 list-decimal list-inside">
-                      <li>Abre LinkedIn en tu navegador (no en la app)</li>
-                      <li>Ve a tu perfil (click en tu foto arriba)</li>
-                      <li>Click en "Más" (botón con 3 puntos)</li>
-                      <li>Selecciona "Guardar en PDF"</li>
-                      <li>Descarga el archivo y súbelo aquí ⬇️</li>
-                    </ol>
                   </div>
-                  <div className="border-2 border-dashed border-purple-400 rounded-lg p-6 text-center hover:border-purple-600 transition-colors bg-white">
-                    <Upload className="w-10 h-10 text-purple-500 mx-auto mb-3" />
-                    <label className="cursor-pointer">
-                      <span className="text-purple-600 font-medium hover:text-purple-700 text-lg">
-                        Selecciona tu LinkedIn PDF
-                      </span>
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        onChange={(e) => handleFileChange(e, 'linkedinFile')}
-                        className="hidden"
-                        required={formData.tipoRevision === 'premium'}
-                      />
-                    </label>
-                    <p className="text-sm text-slate-500 mt-2">PDF, máximo 5MB</p>
-                    {formData.linkedinFile && (
-                      <p className="text-sm text-purple-600 mt-3 font-medium">
-                        ✓ {formData.linkedinFile.name}
-                      </p>
+                </label>
+              </div>
+            </div>
+
+            {/* Subir CV */}
+            {shouldShowCVFile && (
+              <div>
+                <label className="block font-semibold mb-2 text-gray-700">
+                  {t[language].uploadCV} <span className="text-red-500">*</span>
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition">
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={(e) => handleFileChange(e, 'cv')}
+                    required={shouldShowCVFile}
+                    className="hidden"
+                    id="cvFile"
+                  />
+                  <label htmlFor="cvFile" className="cursor-pointer">
+                    {cvFile ? (
+                      <p className="text-green-600 font-medium">{t[language].fileSelected} {cvFile.name}</p>
+                    ) : (
+                      <p className="text-gray-600">📄 {t[language].uploadCVLabel}</p>
                     )}
-                  </div>
+                  </label>
                 </div>
-              </section>
+                <p className="text-sm text-gray-500 mt-1">{t[language].uploadCVHelper}</p>
+              </div>
             )}
 
-          {/* Sección 4: Tipo de revisión/creación */}
-<section>
-  <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-    {formData.tieneCV === 'si' ? (formData.tipoRevision === 'premium' ? '5' : '4') : (formData.tipoRevision === 'premium' ? '4' : '3')}. Tipo de {formData.tieneCV === 'si' ? 'revisión' : 'servicio'}
-  </h4>
-  
-  <div className="space-y-3">
-    {formData.tieneCV === 'si' && (
-      <label className="flex items-start p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-        <input
-          type="radio"
-          name="tipoRevision"
-          value="generica"
-          checked={formData.tipoRevision === 'generica'}
-          onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value, tipoCV: '' }))}
-          className="w-4 h-4 text-blue-600 mt-1"
-        />
-        <div className="ml-3">
-          <div className="flex items-center gap-2">
-            <span className="text-slate-900 font-medium">Genérica</span>
-            <span className="text-green-600 font-bold text-sm">GRATIS*</span>
-          </div>
-          <p className="text-sm text-slate-600 mt-1">Análisis y recomendaciones generales</p>
-        </div>
-      </label>
-    )}
-    
-    <label className="flex items-start p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-      <input
-        type="radio"
-        name="tipoRevision"
-        value="especializada"
-        checked={formData.tipoRevision === 'especializada'}
-        onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value, tipoCV: '' }))}
-        className="w-4 h-4 text-blue-600 mt-1"
-      />
-      <div className="ml-3">
-        <div className="flex items-center gap-2">
-          <span className="text-slate-900 font-medium">Especializada</span>
-          <span className="text-blue-600 font-bold text-sm">$12</span>
-        </div>
-        <p className="text-sm text-slate-600 mt-1">CV optimizado (específico o general)</p>
-      </div>
-    </label>
-    
-    <label className="flex items-start p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-      <input
-        type="radio"
-        name="tipoRevision"
-        value="basico"
-        checked={formData.tipoRevision === 'basico'}
-        onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value, tipoCV: '' }))}
-        className="w-4 h-4 text-blue-600 mt-1"
-      />
-      <div className="ml-3">
-        <div className="flex items-center gap-2">
-          <span className="text-slate-900 font-medium">Básico</span>
-          <span className="text-purple-600 font-bold text-sm">$15</span>
-        </div>
-        <p className="text-sm text-slate-600 mt-1">CV desde cero con formulario</p>
-      </div>
-    </label>
-    
-    <label className="flex items-start p-4 border-2 border-blue-500 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
-      <input
-        type="radio"
-        name="tipoRevision"
-        value="premium"
-        checked={formData.tipoRevision === 'premium'}
-        onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value, tipoCV: '' }))}
-        className="w-4 h-4 text-blue-600 mt-1"
-      />
-      <div className="ml-3 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="text-slate-900 font-medium">Premium</span>
-          <span className="text-blue-600 font-bold text-sm">$20</span>
-          <span className="text-xs bg-yellow-400 text-yellow-900 px-2 py-1 rounded font-bold">
-            ⭐ RECOMENDADO
-          </span>
-        </div>
-        <p className="text-sm text-slate-700 mt-1">Con LinkedIn + optimización (específico o general)</p>
-      </div>
-    </label>
-  </div>
-</section>
-
-            {/* NUEVA SECCIÓN: ¿Específico o General? */}
-            {showTipoCVOption && (
-              <section>
-                <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' ? '6' :
-                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' ? '5' :
-                   formData.tieneCV === 'si' ? '5' : '4'}. ¿Qué tipo de CV necesitas?
-                </h4>
-
+            {/* Tipo de CV */}
+            {shouldShowTipoCV && (
+              <div className="bg-gray-50 p-6 rounded-lg border-l-4 border-blue-500">
+                <label className="block font-semibold mb-3 text-gray-700">
+                  {t[language].tipoBusqueda} <span className="text-red-500">*</span>
+                </label>
                 <div className="space-y-3">
-                  <label className="flex items-start p-5 border-2 border-blue-300 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                  <label className="flex items-start p-4 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 transition">
                     <input
                       type="radio"
                       name="tipoCV"
-                      value="especifico"
-                      checked={formData.tipoCV === 'especifico'}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tipoCV: e.target.value }))}
-                      required={showTipoCVOption}
-                      className="w-4 h-4 text-blue-600 mt-1"
+                      value={language === 'es' ? 'especifico' : 'specific'}
+                      checked={formData.tipoCV === (language === 'es' ? 'especifico' : 'specific')}
+                      onChange={handleInputChange}
+                      required={shouldShowTipoCV}
+                      className="mt-1 mr-3"
                     />
-                    <div className="ml-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-slate-900 font-bold">Para un puesto específico</span>
-                        <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded font-semibold">
-                          RECOMENDADO
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-700 mb-2">
-                        CV optimizado para una oferta de trabajo concreta
-                      </p>
-                      <div className="bg-white rounded p-3 text-xs text-slate-600 space-y-1">
-                        <p>✓ Keywords específicas del puesto</p>
-                        <p>✓ Logros relevantes destacados</p>
-                        <p>✓ Formato ATS para esa industria</p>
-                        <p>✓ Mayor probabilidad de entrevista</p>
-                      </div>
+                    <div>
+                      <span className="font-medium">🎯 {t[language].especifico}</span>
+                      <p className="text-sm text-gray-600 mt-1">{t[language].especificoDesc}</p>
                     </div>
                   </label>
-
-                  <label className="flex items-start p-5 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
+                  <label className="flex items-start p-4 bg-white border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 transition">
                     <input
                       type="radio"
                       name="tipoCV"
                       value="general"
                       checked={formData.tipoCV === 'general'}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tipoCV: e.target.value }))}
-                      required={showTipoCVOption}
-                      className="w-4 h-4 text-blue-600 mt-1"
+                      onChange={handleInputChange}
+                      className="mt-1 mr-3"
                     />
-                    <div className="ml-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-slate-900 font-bold">General (mejorado)</span>
-                      </div>
-                      <p className="text-sm text-slate-700 mb-2">
-                        CV optimizado para aplicar a múltiples puestos
-                      </p>
-                      <div className="bg-slate-50 rounded p-3 text-xs text-slate-600 space-y-1">
-                        <p>✓ Formato profesional moderno</p>
-                        <p>✓ Optimización ATS general</p>
-                        <p>✓ Logros cuantificables destacados</p>
-                        <p>⚠️ No enfocado en puesto específico</p>
-                      </div>
+                    <div>
+                      <span className="font-medium">📄 {t[language].general}</span>
+                      <p className="text-sm text-gray-600 mt-1">{t[language].generalDesc}</p>
                     </div>
                   </label>
                 </div>
-              </section>
+              </div>
             )}
 
-            {/* Información del puesto - SOLO SI ES ESPECÍFICO */}
-            {showPuestoFields && (
-              <section>
-                <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' ? '7' :
-                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' ? '6' :
-                   formData.tieneCV === 'si' ? '6' : '5'}. Información del puesto
-                </h4>
-
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
-                  <p className="text-sm font-semibold text-blue-900 mb-1">
-                    📌 Optimizaremos tu CV para este puesto específico
-                  </p>
-                  <p className="text-xs text-blue-700">
-                    Mientras más detalles proporciones, mejor será la optimización
-                  </p>
+            {/* Campos Puesto Específico */}
+            {shouldShowPuestoEspecifico && (
+              <div className="bg-gray-50 p-6 rounded-lg border-l-4 border-blue-500 space-y-4">
+                <div>
+                  <label className="block font-semibold mb-2 text-gray-700">
+                    {t[language].puesto} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="puesto"
+                    value={formData.puesto}
+                    onChange={handleInputChange}
+                    required={shouldShowPuestoEspecifico}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    placeholder={language === 'es' ? 'Ej: Product Manager' : 'Ex: Product Manager'}
+                  />
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      ¿A qué puesto aplicas? *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.puesto}
-                      onChange={(e) => setFormData(prev => ({ ...prev, puesto: e.target.value }))}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="ej: Gerente de Ventas"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Industria/Sector *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.industria}
-                      onChange={(e) => setFormData(prev => ({ ...prev, industria: e.target.value }))}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="ej: Tecnología, Finanzas"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Empresa (opcional)
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.empresa}
-                      onChange={(e) => setFormData(prev => ({ ...prev, empresa: e.target.value }))}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="ej: Nocodia"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Link de la oferta (opcional)
-                    </label>
-                    <input
-                      type="url"
-                      value={formData.linkOferta}
-                      onChange={(e) => setFormData(prev => ({ ...prev, linkOferta: e.target.value }))}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="https://..."
-                    />
-                  </div>
+                <div>
+                  <label className="block font-semibold mb-2 text-gray-700">
+                    {t[language].empresa}
+                  </label>
+                  <input
+                    type="text"
+                    name="empresa"
+                    value={formData.empresa}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    placeholder={language === 'es' ? 'Ej: Google, Amazon' : 'Ex: Google, Amazon'}
+                  />
                 </div>
-              </section>
+
+                <div>
+                  <label className="block font-semibold mb-2 text-gray-700">
+                    {t[language].industria} <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="industria"
+                    value={formData.industria}
+                    onChange={handleInputChange}
+                    required={shouldShowPuestoEspecifico}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    placeholder={language === 'es' ? 'Ej: Tecnología, Finanzas, Marketing' : 'Ex: Technology, Finance, Marketing'}
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold mb-2 text-gray-700">
+                    {t[language].linkOferta}
+                  </label>
+                  <input
+                    type="url"
+                    name="linkOferta"
+                    value={formData.linkOferta}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
             )}
 
-            {/* Información adicional - PARA ESPECIALIZADA Y PREMIUM */}
-            {(formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium') && (
-              <section>
-                <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'especifico' ? '8' :
-                   formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general' ? '7' :
-                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && formData.tipoCV === 'especifico' ? '7' :
-                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general' ? '6' :
-                   formData.tieneCV === 'si' && formData.tipoCV === 'especifico' ? '7' :
-                   formData.tieneCV === 'si' && formData.tipoCV === 'general' ? '6' :
-                   formData.tipoCV === 'especifico' ? '6' : '5'}. Información adicional
-                </h4>
-                
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
-                  <p className="text-sm font-medium text-slate-700 mb-2">
-                    💡 Agrega lo que NO está en tu {formData.tieneCV === 'si' ? 'CV actual' : 'LinkedIn'} (máx 500 palabras):
-                  </p>
-                  <ul className="text-sm text-slate-600 space-y-1 ml-4 list-disc">
-                    <li>Logros recientes no actualizados</li>
-                    <li>Proyectos actuales en desarrollo</li>
-                    <li>Resultados cuantificables específicos</li>
-                    <li>Habilidades técnicas nuevas</li>
-                    <li>Certificaciones en proceso</li>
-                  </ul>
-                </div>
-
-                <textarea
-                  value={formData.infoAdicional}
-                  onChange={handleInfoChange}
-                  rows={6}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                  placeholder="Ejemplo: En mi rol actual como Gerente de Ventas aumenté las ventas B2B en 42% durante Q1 2026. Implementé un nuevo CRM que redujo el tiempo de cierre en 30%. Actualmente lidero un equipo de 8 personas..."
+            {/* Industria General */}
+            {shouldShowIndustriaGeneral && (
+              <div className="bg-gray-50 p-6 rounded-lg border-l-4 border-blue-500">
+                <label className="block font-semibold mb-2 text-gray-700">
+                  {t[language].industriaGeneral} <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="industria"
+                  value={formData.industria}
+                  onChange={handleInputChange}
+                  required={shouldShowIndustriaGeneral}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                  placeholder={language === 'es' ? 'Ej: Tecnología, Marketing, Ventas' : 'Ex: Technology, Marketing, Sales'}
                 />
-                <div className="flex justify-between items-center mt-2">
-                  <p className="text-sm text-slate-600">
-                    Palabras: {wordCount}/500
-                  </p>
-                  {wordCount > 450 && (
-                    <p className="text-sm text-amber-600 font-medium">
-                      {500 - wordCount} palabras restantes
-                    </p>
-                  )}
-                </div>
-              </section>
+              </div>
             )}
 
-            {/* Submit */}
-            <div className="pt-6 border-t border-slate-200">
-              {submitStatus && (
-                <div className={`mb-4 p-4 rounded-lg flex items-start gap-3 ${
-                  submitStatus.type === 'success' 
-                    ? 'bg-green-50 border border-green-200' 
-                    : 'bg-red-50 border border-red-200'
-                }`}>
-                  {submitStatus.type === 'success' ? (
-                    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  ) : (
-                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  )}
-                  <p className={`text-sm font-medium ${
-                    submitStatus.type === 'success' ? 'text-green-800' : 'text-red-800'
-                  }`}>
-                    {submitStatus.message}
-                  </p>
+            {/* LinkedIn File (Premium) */}
+            {shouldShowLinkedInFile && (
+              <div>
+                <label className="block font-semibold mb-2 text-gray-700">
+                  {t[language].uploadLinkedIn} <span className="text-red-500">*</span>
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition">
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={(e) => handleFileChange(e, 'linkedin')}
+                    required={shouldShowLinkedInFile}
+                    className="hidden"
+                    id="linkedinFile"
+                  />
+                  <label htmlFor="linkedinFile" className="cursor-pointer">
+                    {linkedinFile ? (
+                      <p className="text-green-600 font-medium">{t[language].fileSelected} {linkedinFile.name}</p>
+                    ) : (
+                      <p className="text-gray-600">📄 {t[language].uploadCVLabel}</p>
+                    )}
+                  </label>
                 </div>
-              )}
+                <p className="text-sm text-gray-500 mt-1">{t[language].uploadLinkedInHelper}</p>
+              </div>
+            )}
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-lg"
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Procesando...
-                  </span>
-                ) : (
-                  `Solicitar análisis - ${getPrice()}`
-                )}
-              </button>
-
-              <p className="text-xs text-slate-500 text-center mt-4">
-                * Primera revisión genérica gratuita por email. Servicios pagados requieren confirmación de pago.
-              </p>
+            {/* Información Adicional */}
+            <div>
+              <label className="block font-semibold mb-2 text-gray-700">
+                {t[language].infoAdicional}
+              </label>
+              <textarea
+                name="infoAdicional"
+                value={formData.infoAdicional}
+                onChange={handleInputChange}
+                rows="5"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none resize-y"
+                placeholder={t[language].infoAdicionalPlaceholder}
+              />
+              <p className="text-sm text-gray-500 mt-1">{t[language].infoAdicionalHelper}</p>
             </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-lg font-semibold text-lg hover:shadow-xl transform hover:-translate-y-1 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {loading ? t[language].submitting : t[language].submit}
+            </button>
           </form>
         </div>
-
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-6 mt-16">
-          <div className="text-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h3 className="font-semibold text-slate-900 mb-2">Optimización ATS</h3>
-            <p className="text-sm text-slate-600">Keywords y formato para pasar filtros automáticos</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="font-semibold text-slate-900 mb-2">Análisis IA</h3>
-            <p className="text-sm text-slate-600">Revisión automática con inteligencia artificial</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="font-semibold text-slate-900 mb-2">Entrega Rápida</h3>
-            <p className="text-sm text-slate-600">Revisión genérica inmediata, otros en 24hrs</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white mt-16">
-        <div className="max-w-5xl mx-auto px-6 py-8">
-          <div className="text-center text-sm text-slate-600">
-            <p>© 2026 Nocodia CV - Todos los derechos reservados</p>
-            <p className="mt-2">
-              Consultas: <a href="mailto:jrgarcia@nocodia.net" className="text-blue-600 hover:text-blue-700 font-medium">jrgarcia@nocodia.net</a>
-            </p>
-          </div>
-        </div>
-      </footer>
+      </div>
     </div>
-  );
+  )
 }
+
+export default App
