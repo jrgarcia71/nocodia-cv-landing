@@ -24,8 +24,9 @@ export default function App() {
   const [submitStatus, setSubmitStatus] = useState(null);
   const [wordCount, setWordCount] = useState(0);
   const [reqWordCount, setReqWordCount] = useState(0);
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
+  const [aceptaLimitaciones, setAceptaLimitaciones] = useState(false);
 
-  // Límite de palabras según si tiene CV o no
   const infoWordLimit = formData.tieneCV === 'no' ? 1000 : 500;
 
   const t = {
@@ -132,7 +133,6 @@ export default function App() {
         requisitosNote: '📋 Pega aquí la descripción de la oferta de trabajo',
         requisitosNoteDesc: 'Copia los requisitos, responsabilidades y habilidades solicitadas. Esto nos permite generar un análisis de compatibilidad preciso y una carta de presentación personalizada.',
         requisitosPlaceholder: 'Ejemplo:\n\nRequisitos:\n- 5+ años de experiencia en gestión de equipos\n- Conocimiento en metodologías ágiles\n- Manejo de presupuestos operativos\n\nResponsabilidades:\n- Liderar equipo de 20+ personas\n- Reportar a Gerencia General\n- Gestionar presupuesto operativo...',
-        // Texto cuando TIENE CV
         infoSectionWithCV: 'Información adicional',
         infoNoteWithCV: '💡 Agrega lo que NO está en tu CV actual (máx 500 palabras):',
         infoDescWithCV: 'Esta información tiene la misma importancia que tu CV para optimizarlo.',
@@ -143,8 +143,7 @@ export default function App() {
           'Habilidades técnicas nuevas',
           'Certificaciones en proceso',
         ],
-        infoPlaceholderWithCV: 'Ejemplo: En mi rol actual como Gerente de Ventas aumenté las ventas B2B en 42% durante Q1 2026. Implementé un nuevo CRM que redujo el tiempo de cierre en 30%. Actualmente lidero un equipo de 8 personas...',
-        // Texto cuando NO TIENE CV
+        infoPlaceholderWithCV: 'Ejemplo: En mi rol actual como Gerente de Ventas aumenté las ventas B2B en 42% durante Q1 2026. Implementé un nuevo CRM que redujo el tiempo de cierre en 30%...',
         infoSectionNoCV: 'Tu experiencia profesional',
         infoNoteNoCV: '📝 Cuéntanos tu experiencia para crear tu CV desde cero (máx 1000 palabras):',
         infoDescNoCV: 'Esta información es todo lo que tenemos para crear tu CV. Sé lo más detallado posible.',
@@ -156,12 +155,15 @@ export default function App() {
           'Certificaciones, cursos e idiomas con nivel',
           'Proyectos relevantes o logros destacados',
         ],
-        infoPlaceholderNoCV: 'Ejemplo:\n\nEXPERIENCIA:\n- Gerente de Ventas en Empresa ABC (2020-2024)\n  • Lideré equipo de 8 vendedores\n  • Aumenté ventas en 35% en 2 años\n  • Implementé CRM Salesforce\n\n- Ejecutivo Comercial en Empresa XYZ (2017-2020)\n  • Atención a clientes B2B\n  • Cumplimiento de cuotas 120% promedio\n\nFORMACIÓN:\n- Ingeniería Comercial, Universidad Particular, 2016\n\nHABILIDADES:\n- Excel avanzado, Salesforce, PowerBI\n- Inglés B2, Español nativo\n\nCERTIFICACIONES:\n- Google Analytics 2023',
+        infoPlaceholderNoCV: 'Ejemplo:\n\nEXPERIENCIA:\n- Gerente de Ventas en Empresa ABC (2020-2024)\n  • Lideré equipo de 8 vendedores\n  • Aumenté ventas en 35% en 2 años\n\nFORMACIÓN:\n- Ingeniería Comercial, Universidad Particular, 2016\n\nHABILIDADES:\n- Excel avanzado, Salesforce\n- Inglés B2',
         palabras: 'Palabras:',
         palabrasRestantes: 'palabras restantes',
         submit: 'Solicitar análisis',
         processing: 'Procesando...',
-        disclaimer: '* Primera revisión genérica gratuita por email. Servicios pagados requieren confirmación de pago.'
+        checkLimitaciones: 'Entiendo y acepto que Nocodia CV es un servicio de optimización de documentos profesionales. El servicio no garantiza que sea contactado para entrevistas de trabajo, que obtenga el empleo al que aplica, ni ningún resultado laboral específico. Los resultados dependen de múltiples factores externos ajenos a Nocodia CV.',
+        checkTerminos: 'He leído y acepto la Política de Privacidad, incluyendo el tratamiento de mis datos personales y su transferencia a servidores internacionales para la prestación del servicio, conforme a la Ley Orgánica de Protección de Datos Personales del Ecuador (LOPDP).',
+        politicaLink: 'Política de Privacidad',
+        legalNote: '* Primera revisión genérica gratuita por email. Servicios pagados requieren confirmación de pago. Nocodia CV cumple con la Ley Orgánica de Protección de Datos Personales del Ecuador (LOPDP, R.O. 459 — 26/05/2021). El servicio no garantiza resultados laborales específicos.',
       },
       features: {
         ats: 'Optimización ATS',
@@ -173,7 +175,8 @@ export default function App() {
       },
       footer: {
         rights: '© 2026 Nocodia CV - Todos los derechos reservados',
-        contact: 'Consultas:'
+        contact: 'Consultas:',
+        privacy: 'Política de Privacidad'
       }
     },
     en: {
@@ -278,8 +281,7 @@ export default function App() {
         requisitosLabel: 'Job requirements *',
         requisitosNote: '📋 Paste the job description here',
         requisitosNoteDesc: 'Copy the requirements, responsibilities and skills requested. This enables an accurate compatibility analysis and a personalized cover letter.',
-        requisitosPlaceholder: 'Example:\n\nRequirements:\n- 5+ years of team management experience\n- Knowledge of agile methodologies\n- Operational budget management\n\nResponsibilities:\n- Lead a team of 20+ people\n- Report to General Management\n- Manage operational budget...',
-        // Text when HAS resume
+        requisitosPlaceholder: 'Example:\n\nRequirements:\n- 5+ years of team management experience\n- Knowledge of agile methodologies\n- Operational budget management\n\nResponsibilities:\n- Lead a team of 20+ people\n- Report to General Management...',
         infoSectionWithCV: 'Additional Information',
         infoNoteWithCV: '💡 Add what is NOT in your current resume (max 500 words):',
         infoDescWithCV: 'This information is as important as your resume for optimization.',
@@ -290,8 +292,7 @@ export default function App() {
           'New technical skills',
           'Certifications in progress',
         ],
-        infoPlaceholderWithCV: 'Example: In my current role as Sales Manager I increased B2B sales by 42% during Q1 2026. I implemented a new CRM that reduced closing time by 30%. Currently leading a team of 8 people...',
-        // Text when NO resume
+        infoPlaceholderWithCV: 'Example: In my current role as Sales Manager I increased B2B sales by 42% during Q1 2026...',
         infoSectionNoCV: 'Your professional experience',
         infoNoteNoCV: '📝 Tell us your experience so we can create your resume from scratch (max 1000 words):',
         infoDescNoCV: 'This information is everything we have to create your resume. Be as detailed as possible.',
@@ -303,12 +304,15 @@ export default function App() {
           'Certifications, courses and languages with level',
           'Relevant projects or notable achievements',
         ],
-        infoPlaceholderNoCV: 'Example:\n\nEXPERIENCE:\n- Sales Manager at Company ABC (2020-2024)\n  • Led team of 8 sales reps\n  • Increased sales by 35% in 2 years\n  • Implemented Salesforce CRM\n\n- Sales Executive at Company XYZ (2017-2020)\n  • B2B client management\n  • 120% average quota attainment\n\nEDUCATION:\n- Business Administration, University, 2016\n\nSKILLS:\n- Advanced Excel, Salesforce, PowerBI\n- English C1, Spanish native\n\nCERTIFICATIONS:\n- Google Analytics 2023',
+        infoPlaceholderNoCV: 'Example:\n\nEXPERIENCE:\n- Sales Manager at Company ABC (2020-2024)\n  • Led team of 8 sales reps\n  • Increased sales by 35%\n\nEDUCATION:\n- Business Administration, University, 2016\n\nSKILLS:\n- Salesforce, Excel\n- English C1',
         palabras: 'Words:',
         palabrasRestantes: 'words remaining',
         submit: 'Request analysis',
         processing: 'Processing...',
-        disclaimer: '* First generic review free by email. Paid services require payment confirmation.'
+        checkLimitaciones: 'I understand and accept that Nocodia CV is a professional document optimization service. The service does not guarantee that I will be contacted for job interviews, that I will obtain the position I am applying for, or any specific employment outcome. Results depend on multiple external factors beyond Nocodia CV\'s control.',
+        checkTerminos: 'I have read and accept the Privacy Policy, including the processing of my personal data and its transfer to international servers for service delivery, in accordance with Ecuador\'s Organic Law on Personal Data Protection (LOPDP).',
+        politicaLink: 'Privacy Policy',
+        legalNote: '* First generic review free by email. Paid services require payment confirmation. Nocodia CV complies with Ecuador\'s Organic Law on Personal Data Protection (LOPDP, R.O. 459 — 26/05/2021). The service does not guarantee specific employment results.',
       },
       features: {
         ats: 'ATS Optimization',
@@ -320,7 +324,8 @@ export default function App() {
       },
       footer: {
         rights: '© 2026 Nocodia CV - All rights reserved',
-        contact: 'Contact:'
+        contact: 'Contact:',
+        privacy: 'Privacy Policy'
       }
     }
   };
@@ -366,7 +371,10 @@ export default function App() {
           industria: '', linkOferta: '', requisitosOferta: '',
           infoAdicional: '', cvFile: null, linkedinFile: null
         });
-        setWordCount(0); setReqWordCount(0);
+        setWordCount(0);
+        setReqWordCount(0);
+        setAceptaTerminos(false);
+        setAceptaLimitaciones(false);
       } else {
         setSubmitStatus({ type: 'error', message: result.error || 'Error al procesar tu solicitud' });
       }
@@ -390,11 +398,10 @@ export default function App() {
   const showInfoSection  = formData.tipoRevision !== 'generica';
   const hasCV = formData.tieneCV === 'si';
 
-  // Textos dinámicos del campo info según tenga CV o no
-  const infoSection   = hasCV ? t[language].form.infoSectionWithCV   : t[language].form.infoSectionNoCV;
-  const infoNote      = hasCV ? t[language].form.infoNoteWithCV      : t[language].form.infoNoteNoCV;
-  const infoDesc      = hasCV ? t[language].form.infoDescWithCV      : t[language].form.infoDescNoCV;
-  const infoBullets   = hasCV ? t[language].form.infoBulletsWithCV   : t[language].form.infoBulletsNoCV;
+  const infoSection    = hasCV ? t[language].form.infoSectionWithCV   : t[language].form.infoSectionNoCV;
+  const infoNote       = hasCV ? t[language].form.infoNoteWithCV      : t[language].form.infoNoteNoCV;
+  const infoDesc       = hasCV ? t[language].form.infoDescWithCV      : t[language].form.infoDescNoCV;
+  const infoBullets    = hasCV ? t[language].form.infoBulletsWithCV   : t[language].form.infoBulletsNoCV;
   const infoPlaceholder = hasCV ? t[language].form.infoPlaceholderWithCV : t[language].form.infoPlaceholderNoCV;
 
   return (
@@ -735,16 +742,15 @@ export default function App() {
                   <textarea required value={formData.requisitosOferta} onChange={handleRequisitosChange} rows={8}
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                     placeholder={t[language].form.requisitosPlaceholder} />
-                  <p className="text-sm text-slate-500 mt-1">{t[language].form.requisitosWordCount} {reqWordCount}</p>
+                  <p className="text-sm text-slate-500 mt-1">{t[language].form.requisitosWordCount || 'Palabras:'} {reqWordCount}</p>
                 </div>
               </section>
             )}
 
-            {/* Info adicional / Experiencia desde cero */}
+            {/* Info adicional / desde cero */}
             {showInfoSection && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {/* Número de sección dinámico */}
                   {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'especifico' ? '9' :
                    formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general'   ? '8' :
                    formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && formData.tipoCV === 'especifico' ? '8' :
@@ -754,18 +760,13 @@ export default function App() {
                    formData.tieneCV === 'no' ? '4' :
                    formData.tipoCV === 'especifico' ? '7' : '6'}. {infoSection}
                 </h4>
-
-                {/* Caja informativa diferenciada */}
                 <div className={`border rounded-lg p-4 mb-4 ${formData.tieneCV === 'no' ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200'}`}>
                   <p className={`text-sm font-semibold mb-2 ${formData.tieneCV === 'no' ? 'text-green-800' : 'text-slate-700'}`}>{infoNote}</p>
                   <p className={`text-xs mb-2 ${formData.tieneCV === 'no' ? 'text-green-700' : 'text-slate-600'}`}>{infoDesc}</p>
                   <ul className={`text-sm space-y-1 ml-4 list-disc ${formData.tieneCV === 'no' ? 'text-green-700' : 'text-slate-600'}`}>
-                    {infoBullets.map((bullet, i) => (
-                      <li key={i}>{bullet}</li>
-                    ))}
+                    {infoBullets.map((bullet, i) => (<li key={i}>{bullet}</li>))}
                   </ul>
                 </div>
-
                 <textarea value={formData.infoAdicional} onChange={handleInfoChange}
                   rows={formData.tieneCV === 'no' ? 12 : 6}
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
@@ -780,10 +781,58 @@ export default function App() {
               </section>
             )}
 
-            {/* SUBMIT */}
-            <div className="pt-6 border-t border-slate-200">
+            {/* TÉRMINOS, CHECKBOXES Y SUBMIT */}
+            <div className="pt-6 border-t border-slate-200 space-y-4">
+
+              {/* CHECKBOX 1 — Limitaciones del servicio */}
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={aceptaLimitaciones}
+                  onChange={(e) => setAceptaLimitaciones(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0 rounded"
+                  required
+                />
+                <span className="text-xs text-slate-500 leading-relaxed group-hover:text-slate-700 transition-colors">
+                  {t[language].form.checkLimitaciones}
+                </span>
+              </label>
+
+              {/* CHECKBOX 2 — Privacidad y LOPDP */}
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={aceptaTerminos}
+                  onChange={(e) => setAceptaTerminos(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0 rounded"
+                  required
+                />
+                <span className="text-xs text-slate-500 leading-relaxed group-hover:text-slate-700 transition-colors">
+                  {language === 'es' ? (
+                    <>He leído y acepto la{' '}
+                      <a href="/politica-privacidad.html" target="_blank" rel="noopener noreferrer"
+                        className="text-blue-600 underline hover:text-blue-700 font-medium">
+                        {t[language].form.politicaLink}
+                      </a>
+                      , incluyendo el tratamiento de mis datos personales y su transferencia a servidores internacionales para la prestación del servicio, conforme a la <strong>Ley Orgánica de Protección de Datos Personales del Ecuador (LOPDP)</strong>.
+                    </>
+                  ) : (
+                    <>I have read and accept the{' '}
+                      <a href="/politica-privacidad.html" target="_blank" rel="noopener noreferrer"
+                        className="text-blue-600 underline hover:text-blue-700 font-medium">
+                        {t[language].form.politicaLink}
+                      </a>
+                      , including the processing of my personal data and its transfer to international servers for service delivery, in accordance with <strong>Ecuador's Organic Law on Personal Data Protection (LOPDP)</strong>.
+                    </>
+                  )}
+                </span>
+              </label>
+
+              {/* MENSAJE ÉXITO / ERROR */}
               {submitStatus && (
-                <div className={`mb-4 p-4 rounded-lg flex items-start gap-3 ${submitStatus.type === 'success' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+                <div className={`p-4 rounded-lg flex items-start gap-3 ${
+                  submitStatus.type === 'success' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+                }`}>
                   {submitStatus.type === 'success'
                     ? <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                     : <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />}
@@ -792,7 +841,11 @@ export default function App() {
                   </p>
                 </div>
               )}
-              <button type="submit" disabled={isSubmitting}
+
+              {/* BOTÓN */}
+              <button
+                type="submit"
+                disabled={isSubmitting || !aceptaTerminos || !aceptaLimitaciones}
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-lg">
                 {isSubmitting
                   ? <span className="flex items-center justify-center gap-2">
@@ -804,7 +857,12 @@ export default function App() {
                     </span>
                   : `${t[language].form.submit} — ${getPrice()}`}
               </button>
-              <p className="text-xs text-slate-500 text-center mt-4">{t[language].form.disclaimer}</p>
+
+              {/* TEXTO LEGAL PIE */}
+              <p className="text-xs text-slate-400 text-center leading-relaxed px-2">
+                {t[language].form.legalNote}
+              </p>
+
             </div>
           </form>
         </div>
@@ -847,10 +905,23 @@ export default function App() {
         <div className="max-w-5xl mx-auto px-6 py-8">
           <div className="text-center text-sm text-slate-600">
             <p>{t[language].footer.rights}</p>
-            <p className="mt-2">{t[language].footer.contact} <a href="mailto:jrgarcia@nocodia.net" className="text-blue-600 hover:text-blue-700 font-medium">jrgarcia@nocodia.net</a></p>
+            <p className="mt-2">
+              {t[language].footer.contact}{' '}
+              <a href="mailto:jrgarcia@nocodia.net" className="text-blue-600 hover:text-blue-700 font-medium">jrgarcia@nocodia.net</a>
+              {' · '}
+              <a href="/politica-privacidad.html" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700">
+                {t[language].footer.privacy}
+              </a>
+            </p>
+            <p className="mt-2 text-xs text-slate-400">
+              {language === 'es'
+                ? 'Cumple con la Ley Orgánica de Protección de Datos Personales del Ecuador (LOPDP, R.O. 459 — 26/05/2021)'
+                : 'Compliant with Ecuador\'s Organic Law on Personal Data Protection (LOPDP, R.O. 459 — 26/05/2021)'}
+            </p>
           </div>
         </div>
       </footer>
+
     </div>
   );
 }
