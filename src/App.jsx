@@ -25,6 +25,9 @@ export default function App() {
   const [wordCount, setWordCount] = useState(0);
   const [reqWordCount, setReqWordCount] = useState(0);
 
+  // Límite de palabras según si tiene CV o no
+  const infoWordLimit = formData.tieneCV === 'no' ? 1000 : 500;
+
   const t = {
     es: {
       header: {
@@ -38,32 +41,32 @@ export default function App() {
         subtitle: 'Análisis automático, optimización ATS, y CVs personalizados para destacar en tu industria'
       },
       pricing: {
-        free: 'GRATIS*',
         freeTitle: 'Revisión',
-        freeDesc: 'Análisis profesional de tu CV actual con retroalimentación específica y puntuación ATS',
+        free: 'GRATIS*',
+        freeDesc: 'Análisis profesional de tu CV con puntuación ATS y retroalimentación específica basada en tu documento real',
         specialized: 'Especializada',
         specializedPrice: '$12',
         specializedItems: [
           '✓ CV optimizado ATS',
-          '✓ Análisis de compatibilidad CV vs oferta',
-          '✓ Carta de presentación personalizada',
+          '✓ Análisis compatibilidad CV vs oferta',
+          '✓ Carta de presentación',
           '✓ Keywords ATS integradas',
-          '✓ Tips de optimización LinkedIn',
+          '✓ Optimización LinkedIn',
         ],
-        specializedNote: '(Para puesto específico o mejora general)',
+        specializedNote: '(Puesto específico o mejora general)',
         basic: 'Básico',
         basicPrice: '$15',
-        basicDesc: 'CV profesional creado desde cero usando la información que nos proporciones',
+        basicDesc: 'CV profesional creado desde cero. Tú nos cuentas tu experiencia y nosotros lo construimos',
         premium: 'Premium',
         premiumPrice: '$20',
         premiumItems: [
           '✓ Todo lo de Especializada',
           '✓ CV en Español e Inglés',
           '✓ LinkedIn PDF analizado',
-          '✓ Headline + About LinkedIn',
-          '✓ Carta de presentación EN',
+          '✓ Headline + About LinkedIn ES & EN',
+          '✓ Carta de presentación ES & EN',
         ],
-        premiumNote: '(Para puesto específico o mejora general)',
+        premiumNote: '(Puesto específico o mejora general)',
         recommended: '⭐ RECOMENDADO'
       },
       form: {
@@ -98,9 +101,9 @@ export default function App() {
         revisionEspecializada: 'Especializada',
         revisionEspecializadaDesc: 'CV optimizado + análisis de compatibilidad + carta de presentación',
         revisionBasica: 'Básico',
-        revisionBasicaDesc: 'CV desde cero con formulario',
+        revisionBasicaDesc: 'CV creado desde cero con tu experiencia',
         revisionPremium: 'Premium',
-        revisionPremiumDesc: 'Especializada + versión en inglés + LinkedIn PDF + cartas en ambos idiomas',
+        revisionPremiumDesc: 'Especializada + versión en inglés + LinkedIn PDF + cartas ES & EN',
         tipoCVSection: '¿Qué tipo de CV necesitas?',
         especifico: 'Para un puesto específico',
         especificoDesc: 'CV optimizado para una oferta de trabajo concreta',
@@ -128,19 +131,32 @@ export default function App() {
         requisitosLabel: 'Requisitos del puesto *',
         requisitosNote: '📋 Pega aquí la descripción de la oferta de trabajo',
         requisitosNoteDesc: 'Copia los requisitos, responsabilidades y habilidades solicitadas. Esto nos permite generar un análisis de compatibilidad preciso y una carta de presentación personalizada.',
-        requisitosPlaceholder: 'Ejemplo:\n\nRequisitos:\n- 5+ años de experiencia en gestión de equipos\n- Conocimiento en metodologías ágiles\n- Experiencia en presupuestos operativos\n\nResponsabilidades:\n- Liderar equipo de 20+ personas\n- Reportar a Gerencia General\n- Gestionar presupuesto operativo...',
-        requisitosWordCount: 'Palabras:',
-        infoSection: 'Información adicional',
-        infoNote: '💡 Agrega lo que NO está en tu',
-        infoCV: 'CV actual',
-        infoLinkedIn: 'LinkedIn',
-        infoMax: '(máx 500 palabras):',
-        infoBullet1: 'Logros recientes no actualizados',
-        infoBullet2: 'Proyectos actuales en desarrollo',
-        infoBullet3: 'Resultados cuantificables específicos',
-        infoBullet4: 'Habilidades técnicas nuevas',
-        infoBullet5: 'Certificaciones en proceso',
-        infoPlaceholder: 'Ejemplo: En mi rol actual como Gerente de Ventas aumenté las ventas B2B en 42% durante Q1 2026. Implementé un nuevo CRM que redujo el tiempo de cierre en 30%...',
+        requisitosPlaceholder: 'Ejemplo:\n\nRequisitos:\n- 5+ años de experiencia en gestión de equipos\n- Conocimiento en metodologías ágiles\n- Manejo de presupuestos operativos\n\nResponsabilidades:\n- Liderar equipo de 20+ personas\n- Reportar a Gerencia General\n- Gestionar presupuesto operativo...',
+        // Texto cuando TIENE CV
+        infoSectionWithCV: 'Información adicional',
+        infoNoteWithCV: '💡 Agrega lo que NO está en tu CV actual (máx 500 palabras):',
+        infoDescWithCV: 'Esta información tiene la misma importancia que tu CV para optimizarlo.',
+        infoBulletsWithCV: [
+          'Logros recientes no actualizados en tu CV',
+          'Proyectos actuales en desarrollo',
+          'Resultados cuantificables específicos',
+          'Habilidades técnicas nuevas',
+          'Certificaciones en proceso',
+        ],
+        infoPlaceholderWithCV: 'Ejemplo: En mi rol actual como Gerente de Ventas aumenté las ventas B2B en 42% durante Q1 2026. Implementé un nuevo CRM que redujo el tiempo de cierre en 30%. Actualmente lidero un equipo de 8 personas...',
+        // Texto cuando NO TIENE CV
+        infoSectionNoCV: 'Tu experiencia profesional',
+        infoNoteNoCV: '📝 Cuéntanos tu experiencia para crear tu CV desde cero (máx 1000 palabras):',
+        infoDescNoCV: 'Esta información es todo lo que tenemos para crear tu CV. Sé lo más detallado posible.',
+        infoBulletsNoCV: [
+          'Empresas donde trabajaste, tu puesto y fechas (ej: Gerente de Ventas en Empresa X, 2020-2024)',
+          'Principales responsabilidades y logros en cada puesto (con números si los tienes)',
+          'Formación académica: título, universidad y año de graduación',
+          'Habilidades técnicas y herramientas que manejas',
+          'Certificaciones, cursos e idiomas con nivel',
+          'Proyectos relevantes o logros destacados',
+        ],
+        infoPlaceholderNoCV: 'Ejemplo:\n\nEXPERIENCIA:\n- Gerente de Ventas en Empresa ABC (2020-2024)\n  • Lideré equipo de 8 vendedores\n  • Aumenté ventas en 35% en 2 años\n  • Implementé CRM Salesforce\n\n- Ejecutivo Comercial en Empresa XYZ (2017-2020)\n  • Atención a clientes B2B\n  • Cumplimiento de cuotas 120% promedio\n\nFORMACIÓN:\n- Ingeniería Comercial, Universidad Particular, 2016\n\nHABILIDADES:\n- Excel avanzado, Salesforce, PowerBI\n- Inglés B2, Español nativo\n\nCERTIFICACIONES:\n- Google Analytics 2023',
         palabras: 'Palabras:',
         palabrasRestantes: 'palabras restantes',
         submit: 'Solicitar análisis',
@@ -172,30 +188,30 @@ export default function App() {
         subtitle: 'Automatic analysis, ATS optimization, and personalized resumes to stand out in your industry'
       },
       pricing: {
-        free: 'FREE*',
         freeTitle: 'Review',
-        freeDesc: 'Professional analysis of your current resume with specific feedback and ATS score',
+        free: 'FREE*',
+        freeDesc: 'Professional analysis of your resume with ATS score and specific feedback based on your actual document',
         specialized: 'Specialized',
         specializedPrice: '$12',
         specializedItems: [
           '✓ ATS-optimized resume',
           '✓ Compatibility analysis CV vs job',
-          '✓ Personalized cover letter',
+          '✓ Cover letter',
           '✓ ATS keywords integrated',
-          '✓ LinkedIn optimization tips',
+          '✓ LinkedIn optimization',
         ],
         specializedNote: '(Specific position or general improvement)',
         basic: 'Basic',
         basicPrice: '$15',
-        basicDesc: 'Professional resume created from scratch using the information you provide',
+        basicDesc: 'Professional resume created from scratch. You tell us your experience and we build it',
         premium: 'Premium',
         premiumPrice: '$20',
         premiumItems: [
           '✓ Everything in Specialized',
           '✓ Resume in Spanish & English',
           '✓ LinkedIn PDF analyzed',
-          '✓ LinkedIn Headline + About',
-          '✓ Cover letter in English too',
+          '✓ LinkedIn Headline + About ES & EN',
+          '✓ Cover letter in Spanish & English',
         ],
         premiumNote: '(Specific position or general improvement)',
         recommended: '⭐ RECOMMENDED'
@@ -232,9 +248,9 @@ export default function App() {
         revisionEspecializada: 'Specialized',
         revisionEspecializadaDesc: 'Optimized resume + compatibility analysis + cover letter',
         revisionBasica: 'Basic',
-        revisionBasicaDesc: 'Resume from scratch with form',
+        revisionBasicaDesc: 'Resume created from scratch with your experience',
         revisionPremium: 'Premium',
-        revisionPremiumDesc: 'Specialized + English version + LinkedIn PDF + cover letters in both languages',
+        revisionPremiumDesc: 'Specialized + English version + LinkedIn PDF + cover letters ES & EN',
         tipoCVSection: 'What type of resume do you need?',
         especifico: 'For a specific position',
         especificoDesc: 'Resume optimized for a specific job posting',
@@ -262,19 +278,32 @@ export default function App() {
         requisitosLabel: 'Job requirements *',
         requisitosNote: '📋 Paste the job description here',
         requisitosNoteDesc: 'Copy the requirements, responsibilities and skills requested. This enables an accurate compatibility analysis and a personalized cover letter.',
-        requisitosPlaceholder: 'Example:\n\nRequirements:\n- 5+ years of team management experience\n- Knowledge of agile methodologies\n- Experience with operational budgets\n\nResponsibilities:\n- Lead a team of 20+ people\n- Report to General Management\n- Manage operational budget...',
-        requisitosWordCount: 'Words:',
-        infoSection: 'Additional Information',
-        infoNote: '💡 Add what is NOT in your',
-        infoCV: 'current resume',
-        infoLinkedIn: 'LinkedIn',
-        infoMax: '(max 500 words):',
-        infoBullet1: 'Recent achievements not updated',
-        infoBullet2: 'Current projects in development',
-        infoBullet3: 'Specific quantifiable results',
-        infoBullet4: 'New technical skills',
-        infoBullet5: 'Certifications in progress',
-        infoPlaceholder: 'Example: In my current role as Sales Manager I increased B2B sales by 42% during Q1 2026. I implemented a new CRM that reduced closing time by 30%...',
+        requisitosPlaceholder: 'Example:\n\nRequirements:\n- 5+ years of team management experience\n- Knowledge of agile methodologies\n- Operational budget management\n\nResponsibilities:\n- Lead a team of 20+ people\n- Report to General Management\n- Manage operational budget...',
+        // Text when HAS resume
+        infoSectionWithCV: 'Additional Information',
+        infoNoteWithCV: '💡 Add what is NOT in your current resume (max 500 words):',
+        infoDescWithCV: 'This information is as important as your resume for optimization.',
+        infoBulletsWithCV: [
+          'Recent achievements not updated in your resume',
+          'Current projects in development',
+          'Specific quantifiable results',
+          'New technical skills',
+          'Certifications in progress',
+        ],
+        infoPlaceholderWithCV: 'Example: In my current role as Sales Manager I increased B2B sales by 42% during Q1 2026. I implemented a new CRM that reduced closing time by 30%. Currently leading a team of 8 people...',
+        // Text when NO resume
+        infoSectionNoCV: 'Your professional experience',
+        infoNoteNoCV: '📝 Tell us your experience so we can create your resume from scratch (max 1000 words):',
+        infoDescNoCV: 'This information is everything we have to create your resume. Be as detailed as possible.',
+        infoBulletsNoCV: [
+          'Companies you worked at, your position and dates (ex: Sales Manager at Company X, 2020-2024)',
+          'Main responsibilities and achievements in each role (with numbers if you have them)',
+          'Academic background: degree, university and graduation year',
+          'Technical skills and tools you use',
+          'Certifications, courses and languages with level',
+          'Relevant projects or notable achievements',
+        ],
+        infoPlaceholderNoCV: 'Example:\n\nEXPERIENCE:\n- Sales Manager at Company ABC (2020-2024)\n  • Led team of 8 sales reps\n  • Increased sales by 35% in 2 years\n  • Implemented Salesforce CRM\n\n- Sales Executive at Company XYZ (2017-2020)\n  • B2B client management\n  • 120% average quota attainment\n\nEDUCATION:\n- Business Administration, University, 2016\n\nSKILLS:\n- Advanced Excel, Salesforce, PowerBI\n- English C1, Spanish native\n\nCERTIFICATIONS:\n- Google Analytics 2023',
         palabras: 'Words:',
         palabrasRestantes: 'words remaining',
         submit: 'Request analysis',
@@ -304,7 +333,8 @@ export default function App() {
   const handleInfoChange = (e) => {
     const text  = e.target.value;
     const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-    if (words <= 500) { setFormData(prev => ({ ...prev, infoAdicional: text })); setWordCount(words); }
+    const limit = formData.tieneCV === 'no' ? 1000 : 500;
+    if (words <= limit) { setFormData(prev => ({ ...prev, infoAdicional: text })); setWordCount(words); }
   };
 
   const handleRequisitosChange = (e) => {
@@ -357,6 +387,15 @@ export default function App() {
 
   const showTipoCVOption = formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium';
   const showPuestoFields = formData.tipoCV === 'especifico';
+  const showInfoSection  = formData.tipoRevision !== 'generica';
+  const hasCV = formData.tieneCV === 'si';
+
+  // Textos dinámicos del campo info según tenga CV o no
+  const infoSection   = hasCV ? t[language].form.infoSectionWithCV   : t[language].form.infoSectionNoCV;
+  const infoNote      = hasCV ? t[language].form.infoNoteWithCV      : t[language].form.infoNoteNoCV;
+  const infoDesc      = hasCV ? t[language].form.infoDescWithCV      : t[language].form.infoDescNoCV;
+  const infoBullets   = hasCV ? t[language].form.infoBulletsWithCV   : t[language].form.infoBulletsNoCV;
+  const infoPlaceholder = hasCV ? t[language].form.infoPlaceholderWithCV : t[language].form.infoPlaceholderNoCV;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
@@ -400,50 +439,39 @@ export default function App() {
           <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">{t[language].hero.subtitle}</p>
         </div>
 
-        {/* PRICING CARDS */}
+        {/* PRICING */}
         <div className="grid md:grid-cols-4 gap-4 mb-16">
-
-          {/* GRATIS */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col">
             <div className="text-sm font-semibold text-blue-600 uppercase tracking-wide mb-2">{t[language].pricing.freeTitle}</div>
             <div className="text-3xl font-bold text-slate-900 mb-3">{t[language].pricing.free}</div>
             <p className="text-sm text-slate-600 flex-1">{t[language].pricing.freeDesc}</p>
           </div>
-
-          {/* ESPECIALIZADA */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col">
             <div className="text-sm font-semibold text-indigo-600 uppercase tracking-wide mb-2">{t[language].pricing.specialized}</div>
             <div className="text-3xl font-bold text-slate-900 mb-3">{t[language].pricing.specializedPrice}</div>
-            <ul className="flex-1 space-y-1 mb-3">
+            <ul className="flex-1 space-y-1.5 mb-3">
               {t[language].pricing.specializedItems.map((item, i) => (
                 <li key={i} className="text-xs text-slate-600">{item}</li>
               ))}
             </ul>
             <p className="text-xs text-slate-400">{t[language].pricing.specializedNote}</p>
           </div>
-
-          {/* BÁSICO */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col">
             <div className="text-sm font-semibold text-purple-600 uppercase tracking-wide mb-2">{t[language].pricing.basic}</div>
             <div className="text-3xl font-bold text-slate-900 mb-3">{t[language].pricing.basicPrice}</div>
             <p className="text-sm text-slate-600 flex-1">{t[language].pricing.basicDesc}</p>
           </div>
-
-          {/* PREMIUM */}
           <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-6 shadow-lg border-2 border-blue-700 relative overflow-hidden flex flex-col">
-            <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded">
-              {t[language].pricing.recommended}
-            </div>
+            <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded">{t[language].pricing.recommended}</div>
             <div className="text-sm font-semibold text-blue-100 uppercase tracking-wide mb-2">{t[language].pricing.premium}</div>
             <div className="text-3xl font-bold text-white mb-3">{t[language].pricing.premiumPrice}</div>
-            <ul className="flex-1 space-y-1 mb-3">
+            <ul className="flex-1 space-y-1.5 mb-3">
               {t[language].pricing.premiumItems.map((item, i) => (
                 <li key={i} className="text-xs text-blue-100">{item}</li>
               ))}
             </ul>
             <p className="text-xs text-blue-300">{t[language].pricing.premiumNote}</p>
           </div>
-
         </div>
 
         {/* FORM */}
@@ -455,7 +483,7 @@ export default function App() {
 
           <form onSubmit={handleSubmit} className="p-8 space-y-8">
 
-            {/* SECCIÓN 1 — Datos básicos */}
+            {/* S1 — Datos básicos */}
             <section>
               <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">{t[language].form.section1}</h4>
               <div className="grid md:grid-cols-2 gap-4">
@@ -483,26 +511,26 @@ export default function App() {
               </div>
             </section>
 
-            {/* SECCIÓN 2 — ¿Tienes CV? */}
+            {/* S2 — ¿Tienes CV? */}
             <section>
               <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">{t[language].form.section2}</h4>
               <div className="space-y-3">
                 <label className="flex items-center p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
                   <input type="radio" name="tieneCV" value="si" checked={formData.tieneCV === 'si'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'generica', tipoCV: '' }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'generica', tipoCV: '', infoAdicional: '' }))}
                     className="w-4 h-4 text-blue-600" />
                   <span className="ml-3 text-slate-900 font-medium">{t[language].form.tienesSi}</span>
                 </label>
                 <label className="flex items-center p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
                   <input type="radio" name="tieneCV" value="no" checked={formData.tieneCV === 'no'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'basico', tipoCV: '' }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'basico', tipoCV: '', infoAdicional: '' }))}
                     className="w-4 h-4 text-blue-600" />
                   <span className="ml-3 text-slate-900 font-medium">{t[language].form.tienesNo}</span>
                 </label>
               </div>
             </section>
 
-            {/* SECCIÓN 3 — Subir CV */}
+            {/* S3 — Subir CV */}
             {formData.tieneCV === 'si' && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">{t[language].form.section3Upload}</h4>
@@ -608,7 +636,7 @@ export default function App() {
               </div>
             </section>
 
-            {/* Tipo CV: específico vs general */}
+            {/* Tipo CV */}
             {showTipoCVOption && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
@@ -656,7 +684,7 @@ export default function App() {
               </section>
             )}
 
-            {/* Información del puesto + Requisitos */}
+            {/* Puesto + Requisitos */}
             {showPuestoFields && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
@@ -698,58 +726,55 @@ export default function App() {
                       placeholder={t[language].form.linkOfertaPlaceholder} />
                   </div>
                 </div>
-
-                {/* CAMPO REQUISITOS — nuevo */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">{t[language].form.requisitosLabel}</label>
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
                     <p className="text-sm font-semibold text-amber-800 mb-1">{t[language].form.requisitosNote}</p>
                     <p className="text-xs text-amber-700">{t[language].form.requisitosNoteDesc}</p>
                   </div>
-                  <textarea
-                    required
-                    value={formData.requisitosOferta}
-                    onChange={handleRequisitosChange}
-                    rows={8}
+                  <textarea required value={formData.requisitosOferta} onChange={handleRequisitosChange} rows={8}
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                    placeholder={t[language].form.requisitosPlaceholder}
-                  />
+                    placeholder={t[language].form.requisitosPlaceholder} />
                   <p className="text-sm text-slate-500 mt-1">{t[language].form.requisitosWordCount} {reqWordCount}</p>
                 </div>
               </section>
             )}
 
-            {/* Información adicional */}
-            {(formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium') && (
+            {/* Info adicional / Experiencia desde cero */}
+            {showInfoSection && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
+                  {/* Número de sección dinámico */}
                   {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'especifico' ? '9' :
                    formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general'   ? '8' :
                    formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && formData.tipoCV === 'especifico' ? '8' :
                    formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general'   ? '7' :
                    formData.tieneCV === 'si' && formData.tipoCV === 'especifico' ? '8' :
                    formData.tieneCV === 'si' && formData.tipoCV === 'general'    ? '7' :
-                   formData.tipoCV === 'especifico' ? '7' : '6'}. {t[language].form.infoSection}
+                   formData.tieneCV === 'no' ? '4' :
+                   formData.tipoCV === 'especifico' ? '7' : '6'}. {infoSection}
                 </h4>
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
-                  <p className="text-sm font-medium text-slate-700 mb-2">
-                    {t[language].form.infoNote} {formData.tieneCV === 'si' ? t[language].form.infoCV : t[language].form.infoLinkedIn} {t[language].form.infoMax}
-                  </p>
-                  <ul className="text-sm text-slate-600 space-y-1 ml-4 list-disc">
-                    <li>{t[language].form.infoBullet1}</li>
-                    <li>{t[language].form.infoBullet2}</li>
-                    <li>{t[language].form.infoBullet3}</li>
-                    <li>{t[language].form.infoBullet4}</li>
-                    <li>{t[language].form.infoBullet5}</li>
+
+                {/* Caja informativa diferenciada */}
+                <div className={`border rounded-lg p-4 mb-4 ${formData.tieneCV === 'no' ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200'}`}>
+                  <p className={`text-sm font-semibold mb-2 ${formData.tieneCV === 'no' ? 'text-green-800' : 'text-slate-700'}`}>{infoNote}</p>
+                  <p className={`text-xs mb-2 ${formData.tieneCV === 'no' ? 'text-green-700' : 'text-slate-600'}`}>{infoDesc}</p>
+                  <ul className={`text-sm space-y-1 ml-4 list-disc ${formData.tieneCV === 'no' ? 'text-green-700' : 'text-slate-600'}`}>
+                    {infoBullets.map((bullet, i) => (
+                      <li key={i}>{bullet}</li>
+                    ))}
                   </ul>
                 </div>
-                <textarea value={formData.infoAdicional} onChange={handleInfoChange} rows={6}
+
+                <textarea value={formData.infoAdicional} onChange={handleInfoChange}
+                  rows={formData.tieneCV === 'no' ? 12 : 6}
                   className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                  placeholder={t[language].form.infoPlaceholder} />
+                  placeholder={infoPlaceholder}
+                  required={formData.tieneCV === 'no'} />
                 <div className="flex justify-between items-center mt-2">
-                  <p className="text-sm text-slate-600">{t[language].form.palabras} {wordCount}/500</p>
-                  {wordCount > 450 && (
-                    <p className="text-sm text-amber-600 font-medium">{500 - wordCount} {t[language].form.palabrasRestantes}</p>
+                  <p className="text-sm text-slate-600">{t[language].form.palabras} {wordCount}/{infoWordLimit}</p>
+                  {wordCount > infoWordLimit * 0.9 && (
+                    <p className="text-sm text-amber-600 font-medium">{infoWordLimit - wordCount} {t[language].form.palabrasRestantes}</p>
                   )}
                 </div>
               </section>
@@ -826,7 +851,6 @@ export default function App() {
           </div>
         </div>
       </footer>
-
     </div>
   );
 }
