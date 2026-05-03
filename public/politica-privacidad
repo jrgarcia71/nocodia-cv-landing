@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Política de Privacidad — Nocodia CV</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #334155; }
+  .header { background: linear-gradient(135deg, #2563eb, #4f46e5); color: white; padding: 48px 24px; text-align: center; }
+  .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .header p { font-size: 14px; opacity: 0.8; }
+  .container { max-width: 800px; margin: 0 auto; padding: 48px 24px; }
+  .badge { display: inline-block; background: #dbeafe; color: #1e40af; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 32px; }
+  h2 { font-size: 18px; font-weight: 700; color: #1e293b; margin: 32px 0 12px 0; padding-bottom: 8px; border-bottom: 2px solid #e2e8f0; }
+  p { font-size: 14px; line-height: 1.8; color: #475569; margin-bottom: 12px; }
+  ul { padding-left: 20px; margin-bottom: 12px; }
+  li { font-size: 14px; line-height: 1.8; color: #475569; margin-bottom: 4px; }
+  .highlight { background: #f0f9ff; border-left: 4px solid #2563eb; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .highlight p { margin: 0; color: #1e40af; font-weight: 500; }
+  .warning { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px 20px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .warning p { margin: 0; color: #92400e; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th { background: #f1f5f9; color: #1e293b; font-weight: 600; padding: 10px 14px; text-align: left; border: 1px solid #e2e8f0; }
+  td { padding: 10px 14px; border: 1px solid #e2e8f0; color: #475569; vertical-align: top; }
+  .footer-note { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-top: 48px; text-align: center; }
+  .footer-note p { font-size: 13px; color: #64748b; margin: 0; }
+  a { color: #2563eb; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Política de Privacidad</h1>
+  <p>Nocodia CV — cv.nocodia.net</p>
+  <p style="margin-top:8px;font-size:12px;opacity:0.7;">Última actualización: Mayo 2026</p>
+</div>
+
+<div class="container">
+
+  <div class="badge">✅ Cumple con la LOPDP — Ley Orgánica de Protección de Datos Personales del Ecuador (R.O. 459, 26-may-2021)</div>
+
+  <h2>1. ¿Quién es el responsable del tratamiento?</h2>
+  <p><strong>Nocodia CV</strong> es un servicio operado por Juan Raúl García Álava, con domicilio en Guayaquil, Ecuador.</p>
+  <p>Para cualquier consulta relacionada con tus datos personales puedes contactarnos en: <a href="mailto:jrgarcia@nocodia.net">jrgarcia@nocodia.net</a></p>
+
+  <h2>2. ¿Qué datos recolectamos?</h2>
+  <p>Al utilizar Nocodia CV recolectamos los siguientes datos personales:</p>
+  <ul>
+    <li><strong>Datos de contacto:</strong> nombre completo, correo electrónico y teléfono.</li>
+    <li><strong>Datos profesionales:</strong> historial laboral, formación académica, habilidades, certificaciones e información contenida en tu CV en formato PDF.</li>
+    <li><strong>Datos de perfil LinkedIn:</strong> si optas por el servicio Premium y subes tu PDF de LinkedIn.</li>
+    <li><strong>Información adicional que tú mismo nos proporcionas:</strong> logros, proyectos, metas profesionales y requisitos de oferta laboral.</li>
+  </ul>
+
+  <div class="highlight">
+    <p>Solo recolectamos la información estrictamente necesaria para prestar el servicio que solicitaste. No pedimos datos sensibles como tu número de cédula, datos de salud, origen étnico ni afiliación política.</p>
+  </div>
+
+  <h2>3. ¿Para qué usamos tus datos?</h2>
+  <table>
+    <tr>
+      <th>Finalidad</th>
+      <th>Base legal (LOPDP Art. 7)</th>
+    </tr>
+    <tr>
+      <td>Generar el análisis o CV optimizado que solicitaste</td>
+      <td>Ejecución del servicio contratado / consentimiento</td>
+    </tr>
+    <tr>
+      <td>Enviarte el resultado por email</td>
+      <td>Ejecución del servicio contratado</td>
+    </tr>
+    <tr>
+      <td>Procesar el pago y gestionar la solicitud</td>
+      <td>Ejecución del servicio contratado</td>
+    </tr>
+    <tr>
+      <td>Verificar si ya utilizaste la revisión gratuita</td>
+      <td>Interés legítimo del responsable</td>
+    </tr>
+    <tr>
+      <td>Mejorar la calidad del servicio</td>
+      <td>Interés legítimo del responsable</td>
+    </tr>
+  </table>
+  <p><strong>No usamos tus datos para publicidad de terceros, ni los vendemos bajo ninguna circunstancia.</strong></p>
+
+  <h2>4. ¿Con quién compartimos tus datos?</h2>
+  <p>Para prestar el servicio, tus datos son procesados por los siguientes proveedores tecnológicos:</p>
+  <table>
+    <tr>
+      <th>Proveedor</th>
+      <th>Función</th>
+      <th>Ubicación</th>
+    </tr>
+    <tr>
+      <td><strong>Anthropic (Claude API)</strong></td>
+      <td>Procesamiento con inteligencia artificial para generar el análisis y optimización del CV</td>
+      <td>Estados Unidos</td>
+    </tr>
+    <tr>
+      <td><strong>Supabase</strong></td>
+      <td>Base de datos donde se almacenan tus datos de solicitud</td>
+      <td>Estados Unidos</td>
+    </tr>
+    <tr>
+      <td><strong>Cloudflare (Workers + R2)</strong></td>
+      <td>Procesamiento de la solicitud y almacenamiento temporal de archivos PDF</td>
+      <td>Estados Unidos / Global</td>
+    </tr>
+    <tr>
+      <td><strong>Resend</strong></td>
+      <td>Envío de emails de confirmación y resultados</td>
+      <td>Estados Unidos</td>
+    </tr>
+  </table>
+
+  <div class="warning">
+    <p>⚠️ <strong>Transferencia internacional de datos:</strong> Al utilizar Nocodia CV, tus datos son transferidos y procesados en servidores ubicados fuera del Ecuador, principalmente en Estados Unidos. Al aceptar esta política, consientes expresamente dicha transferencia internacional, conforme al Art. 33 de la LOPDP.</p>
+  </div>
+
+  <p>Ninguno de estos proveedores tiene autorización para usar tus datos con fines distintos a los aquí descritos.</p>
+
+  <h2>5. ¿Cuánto tiempo guardamos tus datos?</h2>
+  <ul>
+    <li>Los archivos PDF (CV y LinkedIn) se conservan en almacenamiento seguro por <strong>90 días</strong> desde la fecha de entrega del servicio, para atender posibles solicitudes de ajuste.</li>
+    <li>Los datos de la solicitud (nombre, email, tipo de servicio) se conservan por <strong>2 años</strong> para efectos de registro del servicio prestado.</li>
+    <li>Transcurrido ese plazo, los datos son eliminados de forma permanente.</li>
+  </ul>
+
+  <h2>6. Tus derechos (ARCO+)</h2>
+  <p>Conforme a la LOPDP, tienes los siguientes derechos sobre tus datos personales:</p>
+  <ul>
+    <li><strong>Acceso:</strong> conocer qué datos tenemos sobre ti.</li>
+    <li><strong>Rectificación:</strong> corregir datos incorrectos o desactualizados.</li>
+    <li><strong>Cancelación / Eliminación:</strong> solicitar que eliminemos tus datos.</li>
+    <li><strong>Oposición:</strong> oponerte a ciertos usos de tus datos.</li>
+    <li><strong>Portabilidad:</strong> recibir tus datos en formato legible.</li>
+  </ul>
+  <p>Para ejercer cualquiera de estos derechos, escríbenos a <a href="mailto:jrgarcia@nocodia.net">jrgarcia@nocodia.net</a> con el asunto <strong>"Protección de Datos"</strong>. Responderemos en un plazo máximo de 15 días hábiles.</p>
+
+  <h2>7. Seguridad de los datos</h2>
+  <p>Implementamos medidas técnicas para proteger tus datos, incluyendo transmisión cifrada (HTTPS/TLS), control de acceso restringido y almacenamiento en plataformas con certificaciones de seguridad internacionales. Sin embargo, ningún sistema es 100% infalible. En caso de brecha de seguridad que afecte tus datos, te notificaremos conforme lo exige la LOPDP.</p>
+
+  <h2>8. Cambios a esta política</h2>
+  <p>Podemos actualizar esta política ocasionalmente. La fecha de última actualización siempre aparecerá en la parte superior. El uso continuado del servicio tras una actualización implica aceptación de los cambios.</p>
+
+  <h2>9. Contacto y reclamaciones</h2>
+  <p>Para cualquier consulta: <a href="mailto:jrgarcia@nocodia.net">jrgarcia@nocodia.net</a></p>
+  <p>Si consideras que tus derechos han sido vulnerados, puedes presentar una reclamación ante la <strong>Superintendencia de Protección de Datos Personales (SPDP)</strong> del Ecuador.</p>
+
+  <div class="footer-note">
+    <p>Esta política fue elaborada en cumplimiento de la <strong>Ley Orgánica de Protección de Datos Personales del Ecuador</strong> (R.O. Suplemento 459, 26 de mayo de 2021) y su Reglamento General (noviembre 2023).</p>
+    <p style="margin-top:8px;">© 2026 Nocodia CV — Guayaquil, Ecuador</p>
+  </div>
+
+</div>
+</body>
+</html>
