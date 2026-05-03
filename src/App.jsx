@@ -38,19 +38,32 @@ export default function App() {
         subtitle: 'Análisis automático, optimización ATS, y CVs personalizados para destacar en tu industria'
       },
       pricing: {
-        revision: 'Revisión',
         free: 'GRATIS*',
-        freeDesc: 'Análisis genérico de tu CV actual',
+        freeTitle: 'Revisión',
+        freeDesc: 'Análisis profesional de tu CV actual con retroalimentación específica y puntuación ATS',
         specialized: 'Especializada',
-        specializedDesc: 'CV reescrito para:',
-        specializedBullets: '• Puesto específico\n• Mejora general',
-        specializedNote: '(Tú eliges)',
+        specializedPrice: '$12',
+        specializedItems: [
+          '✓ CV optimizado ATS',
+          '✓ Análisis de compatibilidad CV vs oferta',
+          '✓ Carta de presentación personalizada',
+          '✓ Keywords ATS integradas',
+          '✓ Tips de optimización LinkedIn',
+        ],
+        specializedNote: '(Para puesto específico o mejora general)',
         basic: 'Básico',
-        basicDesc: 'CV nuevo desde cero con formulario',
+        basicPrice: '$15',
+        basicDesc: 'CV profesional creado desde cero usando la información que nos proporciones',
         premium: 'Premium',
-        premiumDesc: 'Con LinkedIn PDF',
-        premiumBullets: '• Puesto específico\n• Mejora general',
-        premiumNote: '(Tú eliges)',
+        premiumPrice: '$20',
+        premiumItems: [
+          '✓ Todo lo de Especializada',
+          '✓ CV en Español e Inglés',
+          '✓ LinkedIn PDF analizado',
+          '✓ Headline + About LinkedIn',
+          '✓ Carta de presentación EN',
+        ],
+        premiumNote: '(Para puesto específico o mejora general)',
         recommended: '⭐ RECOMENDADO'
       },
       form: {
@@ -70,7 +83,6 @@ export default function App() {
         selectCV: 'Selecciona tu CV',
         pdfMax: 'PDF, máximo 5MB',
         section3LinkedIn: 'Sube tu LinkedIn PDF',
-        section4LinkedIn: '4. Sube tu LinkedIn PDF',
         linkedinInstructions: '📱 Cómo descargar tu LinkedIn:',
         linkedinStep1: 'Abre LinkedIn en tu navegador (no en la app)',
         linkedinStep2: 'Ve a tu perfil (click en tu foto arriba)',
@@ -82,13 +94,13 @@ export default function App() {
         revision: 'revisión',
         servicio: 'servicio',
         revisionGenerica: 'Genérica',
-        revisionGenericaDesc: 'Análisis y recomendaciones generales',
+        revisionGenericaDesc: 'Análisis profesional con puntuación ATS y recomendaciones específicas',
         revisionEspecializada: 'Especializada',
-        revisionEspecializadaDesc: 'CV optimizado (específico o general)',
+        revisionEspecializadaDesc: 'CV optimizado + análisis de compatibilidad + carta de presentación',
         revisionBasica: 'Básico',
         revisionBasicaDesc: 'CV desde cero con formulario',
         revisionPremium: 'Premium',
-        revisionPremiumDesc: 'Con LinkedIn + optimización (específico o general)',
+        revisionPremiumDesc: 'Especializada + versión en inglés + LinkedIn PDF + cartas en ambos idiomas',
         tipoCVSection: '¿Qué tipo de CV necesitas?',
         especifico: 'Para un puesto específico',
         especificoDesc: 'CV optimizado para una oferta de trabajo concreta',
@@ -101,7 +113,7 @@ export default function App() {
         generalBullet1: '✓ Formato profesional moderno',
         generalBullet2: '✓ Optimización ATS general',
         generalBullet3: '✓ Logros cuantificables destacados',
-        generalBullet4: '⚠️ No enfocado en puesto específico',
+        generalBullet4: '⚠️ Sin análisis de compatibilidad',
         puestoSection: 'Información del puesto',
         puestoNote: '📌 Optimizaremos tu CV para este puesto específico',
         puestoNoteDesc: 'Mientras más detalles proporciones, mejor será la optimización',
@@ -114,9 +126,9 @@ export default function App() {
         linkOferta: 'Link de la oferta (opcional)',
         linkOfertaPlaceholder: 'https://...',
         requisitosLabel: 'Requisitos del puesto *',
-        requisitosNote: '📋 Pega aquí la descripción de la oferta',
-        requisitosNoteDesc: 'Copia los requisitos, responsabilidades y habilidades solicitadas. Esto permite generar un análisis de compatibilidad preciso y una carta de presentación personalizada.',
-        requisitosPlaceholder: 'Ejemplo:\n\nRequisitos:\n- 5+ años de experiencia en gestión de equipos\n- Conocimiento en metodologías ágiles\n- Experiencia en presupuestos operativos\n\nResponsabilidades:\n- Liderar equipo de 20+ personas\n- Reportar a Gerencia General\n- Gestionar presupuesto de $500K...',
+        requisitosNote: '📋 Pega aquí la descripción de la oferta de trabajo',
+        requisitosNoteDesc: 'Copia los requisitos, responsabilidades y habilidades solicitadas. Esto nos permite generar un análisis de compatibilidad preciso y una carta de presentación personalizada.',
+        requisitosPlaceholder: 'Ejemplo:\n\nRequisitos:\n- 5+ años de experiencia en gestión de equipos\n- Conocimiento en metodologías ágiles\n- Experiencia en presupuestos operativos\n\nResponsabilidades:\n- Liderar equipo de 20+ personas\n- Reportar a Gerencia General\n- Gestionar presupuesto operativo...',
         requisitosWordCount: 'Palabras:',
         infoSection: 'Información adicional',
         infoNote: '💡 Agrega lo que NO está en tu',
@@ -128,7 +140,7 @@ export default function App() {
         infoBullet3: 'Resultados cuantificables específicos',
         infoBullet4: 'Habilidades técnicas nuevas',
         infoBullet5: 'Certificaciones en proceso',
-        infoPlaceholder: 'Ejemplo: En mi rol actual como Gerente de Ventas aumenté las ventas B2B en 42% durante Q1 2026. Implementé un nuevo CRM que redujo el tiempo de cierre en 30%. Actualmente lidero un equipo de 8 personas...',
+        infoPlaceholder: 'Ejemplo: En mi rol actual como Gerente de Ventas aumenté las ventas B2B en 42% durante Q1 2026. Implementé un nuevo CRM que redujo el tiempo de cierre en 30%...',
         palabras: 'Palabras:',
         palabrasRestantes: 'palabras restantes',
         submit: 'Solicitar análisis',
@@ -160,19 +172,32 @@ export default function App() {
         subtitle: 'Automatic analysis, ATS optimization, and personalized resumes to stand out in your industry'
       },
       pricing: {
-        revision: 'Review',
         free: 'FREE*',
-        freeDesc: 'Generic analysis of your current resume',
+        freeTitle: 'Review',
+        freeDesc: 'Professional analysis of your current resume with specific feedback and ATS score',
         specialized: 'Specialized',
-        specializedDesc: 'Resume rewritten for:',
-        specializedBullets: '• Specific position\n• General improvement',
-        specializedNote: '(You choose)',
+        specializedPrice: '$12',
+        specializedItems: [
+          '✓ ATS-optimized resume',
+          '✓ Compatibility analysis CV vs job',
+          '✓ Personalized cover letter',
+          '✓ ATS keywords integrated',
+          '✓ LinkedIn optimization tips',
+        ],
+        specializedNote: '(Specific position or general improvement)',
         basic: 'Basic',
-        basicDesc: 'New resume from scratch with form',
+        basicPrice: '$15',
+        basicDesc: 'Professional resume created from scratch using the information you provide',
         premium: 'Premium',
-        premiumDesc: 'With LinkedIn PDF',
-        premiumBullets: '• Specific position\n• General improvement',
-        premiumNote: '(You choose)',
+        premiumPrice: '$20',
+        premiumItems: [
+          '✓ Everything in Specialized',
+          '✓ Resume in Spanish & English',
+          '✓ LinkedIn PDF analyzed',
+          '✓ LinkedIn Headline + About',
+          '✓ Cover letter in English too',
+        ],
+        premiumNote: '(Specific position or general improvement)',
         recommended: '⭐ RECOMMENDED'
       },
       form: {
@@ -192,7 +217,6 @@ export default function App() {
         selectCV: 'Select your resume',
         pdfMax: 'PDF, max 5MB',
         section3LinkedIn: 'Upload your LinkedIn PDF',
-        section4LinkedIn: '4. Upload your LinkedIn PDF',
         linkedinInstructions: '📱 How to download your LinkedIn:',
         linkedinStep1: 'Open LinkedIn in your browser (not the app)',
         linkedinStep2: 'Go to your profile (click your photo)',
@@ -204,18 +228,18 @@ export default function App() {
         revision: 'review',
         servicio: 'service',
         revisionGenerica: 'Generic',
-        revisionGenericaDesc: 'Analysis and general recommendations',
+        revisionGenericaDesc: 'Professional analysis with ATS score and specific recommendations',
         revisionEspecializada: 'Specialized',
-        revisionEspecializadaDesc: 'Optimized resume (specific or general)',
+        revisionEspecializadaDesc: 'Optimized resume + compatibility analysis + cover letter',
         revisionBasica: 'Basic',
         revisionBasicaDesc: 'Resume from scratch with form',
         revisionPremium: 'Premium',
-        revisionPremiumDesc: 'With LinkedIn + optimization (specific or general)',
+        revisionPremiumDesc: 'Specialized + English version + LinkedIn PDF + cover letters in both languages',
         tipoCVSection: 'What type of resume do you need?',
         especifico: 'For a specific position',
         especificoDesc: 'Resume optimized for a specific job posting',
         especificoBullet1: '✓ Position-specific keywords',
-        especificoBullet2: '✓ Compatibility analysis: your profile vs. job requirements',
+        especificoBullet2: '✓ Compatibility analysis CV vs job requirements',
         especificoBullet3: '✓ Personalized cover letter',
         especificoBullet4: '✓ Higher interview probability',
         general: 'General (improved)',
@@ -223,7 +247,7 @@ export default function App() {
         generalBullet1: '✓ Modern professional format',
         generalBullet2: '✓ General ATS optimization',
         generalBullet3: '✓ Quantifiable achievements highlighted',
-        generalBullet4: '⚠️ Not focused on specific position',
+        generalBullet4: '⚠️ No compatibility analysis',
         puestoSection: 'Position Information',
         puestoNote: '📌 We will optimize your resume for this specific position',
         puestoNoteDesc: 'The more details you provide, the better the optimization',
@@ -238,7 +262,7 @@ export default function App() {
         requisitosLabel: 'Job requirements *',
         requisitosNote: '📋 Paste the job description here',
         requisitosNoteDesc: 'Copy the requirements, responsibilities and skills requested. This enables an accurate compatibility analysis and a personalized cover letter.',
-        requisitosPlaceholder: 'Example:\n\nRequirements:\n- 5+ years of team management experience\n- Knowledge of agile methodologies\n- Experience with operational budgets\n\nResponsibilities:\n- Lead a team of 20+ people\n- Report to General Management\n- Manage $500K budget...',
+        requisitosPlaceholder: 'Example:\n\nRequirements:\n- 5+ years of team management experience\n- Knowledge of agile methodologies\n- Experience with operational budgets\n\nResponsibilities:\n- Lead a team of 20+ people\n- Report to General Management\n- Manage operational budget...',
         requisitosWordCount: 'Words:',
         infoSection: 'Additional Information',
         infoNote: '💡 Add what is NOT in your',
@@ -250,7 +274,7 @@ export default function App() {
         infoBullet3: 'Specific quantifiable results',
         infoBullet4: 'New technical skills',
         infoBullet5: 'Certifications in progress',
-        infoPlaceholder: 'Example: In my current role as Sales Manager I increased B2B sales by 42% during Q1 2026. I implemented a new CRM that reduced closing time by 30%. Currently leading a team of 8 people...',
+        infoPlaceholder: 'Example: In my current role as Sales Manager I increased B2B sales by 42% during Q1 2026. I implemented a new CRM that reduced closing time by 30%...',
         palabras: 'Words:',
         palabrasRestantes: 'words remaining',
         submit: 'Request analysis',
@@ -334,16 +358,9 @@ export default function App() {
   const showTipoCVOption = formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium';
   const showPuestoFields = formData.tipoCV === 'especifico';
 
-  // Número de sección dinámico
-  const getSectionNumber = (base) => {
-    let n = base;
-    if (formData.tieneCV === 'si') n++;               // sección subir CV
-    if (formData.tipoRevision === 'premium') n++;      // sección subir LinkedIn
-    return n;
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+
       {/* HEADER */}
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-6 py-6">
@@ -373,6 +390,7 @@ export default function App() {
       </header>
 
       <section className="max-w-5xl mx-auto px-6 py-16">
+
         {/* HERO */}
         <div className="text-center mb-16">
           <h2 className="text-5xl md:text-6xl font-serif font-bold text-slate-900 mb-6 leading-tight">
@@ -382,33 +400,50 @@ export default function App() {
           <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">{t[language].hero.subtitle}</p>
         </div>
 
-        {/* PRICING */}
+        {/* PRICING CARDS */}
         <div className="grid md:grid-cols-4 gap-4 mb-16">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-            <div className="text-sm font-semibold text-blue-600 uppercase tracking-wide mb-2">{t[language].pricing.revision}</div>
-            <div className="text-3xl font-bold text-slate-900 mb-2">{t[language].pricing.free}</div>
-            <p className="text-sm text-slate-600">{t[language].pricing.freeDesc}</p>
+
+          {/* GRATIS */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col">
+            <div className="text-sm font-semibold text-blue-600 uppercase tracking-wide mb-2">{t[language].pricing.freeTitle}</div>
+            <div className="text-3xl font-bold text-slate-900 mb-3">{t[language].pricing.free}</div>
+            <p className="text-sm text-slate-600 flex-1">{t[language].pricing.freeDesc}</p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+
+          {/* ESPECIALIZADA */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col">
             <div className="text-sm font-semibold text-indigo-600 uppercase tracking-wide mb-2">{t[language].pricing.specialized}</div>
-            <div className="text-3xl font-bold text-slate-900 mb-2">$12</div>
-            <p className="text-sm text-slate-600 mb-2">{t[language].pricing.specializedDesc}</p>
-            <p className="text-xs text-slate-500 whitespace-pre-line">{t[language].pricing.specializedBullets}</p>
-            <p className="text-xs text-slate-400 mt-2">{t[language].pricing.specializedNote}</p>
+            <div className="text-3xl font-bold text-slate-900 mb-3">{t[language].pricing.specializedPrice}</div>
+            <ul className="flex-1 space-y-1 mb-3">
+              {t[language].pricing.specializedItems.map((item, i) => (
+                <li key={i} className="text-xs text-slate-600">{item}</li>
+              ))}
+            </ul>
+            <p className="text-xs text-slate-400">{t[language].pricing.specializedNote}</p>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+
+          {/* BÁSICO */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col">
             <div className="text-sm font-semibold text-purple-600 uppercase tracking-wide mb-2">{t[language].pricing.basic}</div>
-            <div className="text-3xl font-bold text-slate-900 mb-2">$15</div>
-            <p className="text-sm text-slate-600">{t[language].pricing.basicDesc}</p>
+            <div className="text-3xl font-bold text-slate-900 mb-3">{t[language].pricing.basicPrice}</div>
+            <p className="text-sm text-slate-600 flex-1">{t[language].pricing.basicDesc}</p>
           </div>
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-6 shadow-lg border-2 border-blue-700 relative overflow-hidden">
-            <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded">{t[language].pricing.recommended}</div>
+
+          {/* PREMIUM */}
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-6 shadow-lg border-2 border-blue-700 relative overflow-hidden flex flex-col">
+            <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded">
+              {t[language].pricing.recommended}
+            </div>
             <div className="text-sm font-semibold text-blue-100 uppercase tracking-wide mb-2">{t[language].pricing.premium}</div>
-            <div className="text-3xl font-bold text-white mb-2">$20</div>
-            <p className="text-sm text-blue-100 mb-2">{t[language].pricing.premiumDesc}</p>
-            <p className="text-xs text-blue-200 whitespace-pre-line">{t[language].pricing.premiumBullets}</p>
-            <p className="text-xs text-blue-300 mt-2">{t[language].pricing.premiumNote}</p>
+            <div className="text-3xl font-bold text-white mb-3">{t[language].pricing.premiumPrice}</div>
+            <ul className="flex-1 space-y-1 mb-3">
+              {t[language].pricing.premiumItems.map((item, i) => (
+                <li key={i} className="text-xs text-blue-100">{item}</li>
+              ))}
+            </ul>
+            <p className="text-xs text-blue-300">{t[language].pricing.premiumNote}</p>
           </div>
+
         </div>
 
         {/* FORM */}
@@ -483,7 +518,7 @@ export default function App() {
               </section>
             )}
 
-            {/* SECCIÓN LinkedIn (Premium) */}
+            {/* LinkedIn (Premium) */}
             {formData.tipoRevision === 'premium' && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
@@ -513,7 +548,7 @@ export default function App() {
               </section>
             )}
 
-            {/* SECCIÓN — Tipo de revisión */}
+            {/* Tipo de revisión */}
             <section>
               <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
                 {formData.tieneCV === 'si' ? (formData.tipoRevision === 'premium' ? '5' : '4') : (formData.tipoRevision === 'premium' ? '4' : '3')}. {t[language].form.tipoRevisionSection} {formData.tieneCV === 'si' ? t[language].form.revision : t[language].form.servicio}
@@ -573,7 +608,7 @@ export default function App() {
               </div>
             </section>
 
-            {/* SECCIÓN — Tipo CV (específico vs general) */}
+            {/* Tipo CV: específico vs general */}
             {showTipoCVOption && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
@@ -621,7 +656,7 @@ export default function App() {
               </section>
             )}
 
-            {/* SECCIÓN — Información del puesto */}
+            {/* Información del puesto + Requisitos */}
             {showPuestoFields && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
@@ -633,7 +668,7 @@ export default function App() {
                   <p className="text-sm font-semibold text-blue-900 mb-1">{t[language].form.puestoNote}</p>
                   <p className="text-xs text-blue-700">{t[language].form.puestoNoteDesc}</p>
                 </div>
-                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div className="grid md:grid-cols-2 gap-4 mb-6">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">{t[language].form.puesto} *</label>
                     <input type="text" required value={formData.puesto}
@@ -664,8 +699,8 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* CAMPO NUEVO — Requisitos del puesto */}
-                <div className="mt-2">
+                {/* CAMPO REQUISITOS — nuevo */}
+                <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">{t[language].form.requisitosLabel}</label>
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
                     <p className="text-sm font-semibold text-amber-800 mb-1">{t[language].form.requisitosNote}</p>
@@ -684,16 +719,16 @@ export default function App() {
               </section>
             )}
 
-            {/* SECCIÓN — Información adicional */}
+            {/* Información adicional */}
             {(formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium') && (
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
                   {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'especifico' ? '9' :
-                   formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general' ? '8' :
+                   formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general'   ? '8' :
                    formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && formData.tipoCV === 'especifico' ? '8' :
-                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general' ? '7' :
+                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general'   ? '7' :
                    formData.tieneCV === 'si' && formData.tipoCV === 'especifico' ? '8' :
-                   formData.tieneCV === 'si' && formData.tipoCV === 'general' ? '7' :
+                   formData.tieneCV === 'si' && formData.tipoCV === 'general'    ? '7' :
                    formData.tipoCV === 'especifico' ? '7' : '6'}. {t[language].form.infoSection}
                 </h4>
                 <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
@@ -779,6 +814,7 @@ export default function App() {
             <p className="text-sm text-slate-600">{t[language].features.coverLetterDesc}</p>
           </div>
         </div>
+
       </section>
 
       {/* FOOTER */}
@@ -790,6 +826,7 @@ export default function App() {
           </div>
         </div>
       </footer>
+
     </div>
   );
 }
