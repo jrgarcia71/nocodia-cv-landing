@@ -1,927 +1,651 @@
-import { useState } from 'react';
-import { Upload, CheckCircle, AlertCircle } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Upload, CheckCircle, AlertCircle, ArrowDown } from 'lucide-react';
+
+const FontLink = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f9fafb; color: #111827; }
+    .serif { font-family: 'DM Serif Display', serif; }
+    input, textarea, select, button { font-family: inherit; }
+    input:focus, textarea:focus { outline: none; border-color: #2563eb !important; }
+
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes shimmer { 0%,100%{opacity:.6} 50%{opacity:1} }
+    @keyframes dash { from { stroke-dashoffset: 264; } to { stroke-dashoffset: 0; } }
+
+    .fade-up { animation: fadeUp .5s ease both; }
+    .d1 { animation-delay:.1s; } .d2 { animation-delay:.2s; } .d3 { animation-delay:.3s; } .d4 { animation-delay:.4s; }
+
+    .upload-box { transition: all .2s; border: 2px dashed #d1d5db; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; background: #f9fafb; }
+    .upload-box:hover { border-color: #2563eb; background: #eff6ff; }
+    .upload-box.done { border-color: #10b981; background: #f0fdf4; }
+
+    .plan-card { background: white; border: 2px solid #e5e7eb; border-radius: 20px; padding: 28px; transition: all .2s; cursor: pointer; }
+    .plan-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.1); }
+    .plan-card.active { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,.12); }
+
+    .btn-primary { background: linear-gradient(135deg,#1d4ed8,#4f46e5); color: white; border: none; border-radius: 12px; padding: 15px 24px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all .2s; width: 100%; }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(37,99,235,.35); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+
+    .score-circle { animation: dash 1.2s ease .3s both; }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .hero-grid { grid-template-columns: 1fr !important; }
+      .plans-grid { grid-template-columns: 1fr !important; }
+      .steps-grid { grid-template-columns: 1fr !important; }
+    }
+  `}</style>
+);
+
+// ── MOCK SCREENSHOT del resultado ─────────────────────────────────────────────
+const ResultPreview = ({ lang }) => (
+  <div style={{ background:'white', borderRadius:16, boxShadow:'0 24px 64px rgba(0,0,0,.15)', overflow:'hidden', border:'1px solid #e5e7eb' }}>
+    {/* Header mock email */}
+    <div style={{ background:'#f3f4f6', padding:'10px 16px', display:'flex', alignItems:'center', gap:8, borderBottom:'1px solid #e5e7eb' }}>
+      <div style={{ width:10, height:10, borderRadius:'50%', background:'#ef4444' }} />
+      <div style={{ width:10, height:10, borderRadius:'50%', background:'#f59e0b' }} />
+      <div style={{ width:10, height:10, borderRadius:'50%', background:'#10b981' }} />
+      <span style={{ fontSize:11, color:'#9ca3af', marginLeft:8 }}>✅ {lang==='es'?'Tu Análisis de CV — Nocodia IA':'Your Resume Analysis — Nocodia AI'}</span>
+    </div>
+
+    <div style={{ padding:'24px 24px 20px' }}>
+      {/* Brand */}
+      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:20 }}>
+        <div style={{ width:6, height:6, borderRadius:'50%', background:'#2563eb' }} />
+        <span style={{ fontSize:13, fontWeight:700, color:'#2563eb' }}>Nocodia CV</span>
+        <span style={{ fontSize:12, color:'#9ca3af' }}>· {lang==='es'?'Análisis IA':'AI Analysis'}</span>
+      </div>
+
+      {/* Score row */}
+      <div style={{ display:'flex', alignItems:'center', gap:16, marginBottom:20, padding:'16px', background:'#f8fafc', borderRadius:12 }}>
+        <div style={{ position:'relative', width:64, height:64, flexShrink:0 }}>
+          <svg viewBox="0 0 100 100" style={{ transform:'rotate(-90deg)', width:64, height:64 }}>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" strokeWidth="10"/>
+            <circle className="score-circle" cx="50" cy="50" r="42" fill="none" stroke="#10b981" strokeWidth="10" strokeLinecap="round" strokeDasharray="200 264"/>
+          </svg>
+          <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
+            <span style={{ fontSize:18, fontWeight:800, color:'#0c1220', lineHeight:1 }}>72</span>
+            <span style={{ fontSize:9, color:'#9ca3af' }}>/100</span>
+          </div>
+        </div>
+        <div>
+          <div style={{ fontSize:12, fontWeight:700, color:'#10b981', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:2 }}>ATS Score</div>
+          <div style={{ fontSize:13, fontWeight:600, color:'#0c1220', marginBottom:2 }}>{lang==='es'?'"CV competitivo con mejoras clave"':'"Competitive resume with key improvements"'}</div>
+          <div style={{ fontSize:11, color:'#6b7280' }}>{lang==='es'?'3 errores críticos detectados':'3 critical issues detected'}</div>
+        </div>
+      </div>
+
+      {/* Fortalezas */}
+      <div style={{ marginBottom:14 }}>
+        <div style={{ fontSize:11, fontWeight:700, color:'#0c1220', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8 }}>💪 {lang==='es'?'Puntos fuertes':'Strengths'}</div>
+        {['Experiencia cuantificada con métricas reales (+38% FTTH, 99.8% uptime)', 'Progresión de carrera clara y coherente'].map((t,i) => (
+          <div key={i} style={{ display:'flex', gap:6, alignItems:'flex-start', marginBottom:5 }}>
+            <span style={{ color:'#10b981', fontSize:12, flexShrink:0, marginTop:1 }}>✓</span>
+            <span style={{ fontSize:12, color:'#374151' }}>{lang==='es'?t:t}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Errores */}
+      <div style={{ marginBottom:14 }}>
+        <div style={{ fontSize:11, fontWeight:700, color:'#0c1220', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8 }}>⚠️ {lang==='es'?'Errores críticos':'Critical issues'}</div>
+        {[
+          lang==='es'?'Perfil profesional genérico — no comunica tu propuesta de valor':'Generic professional profile — doesn\'t communicate your value proposition',
+          lang==='es'?'Faltan keywords ATS del sector (NOC, FTTH, SLA, backbone)':'Missing sector ATS keywords (NOC, FTTH, SLA, backbone)',
+        ].map((t,i) => (
+          <div key={i} style={{ display:'flex', gap:6, alignItems:'flex-start', marginBottom:5 }}>
+            <span style={{ color:'#ef4444', fontSize:12, flexShrink:0, marginTop:1 }}>✕</span>
+            <span style={{ fontSize:12, color:'#374151' }}>{t}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* CTA upsell en el email */}
+      <div style={{ background:'linear-gradient(135deg,#eff6ff,#eef2ff)', borderRadius:10, padding:'12px 14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <div style={{ fontSize:12, color:'#1e40af', fontWeight:600 }}>
+          {lang==='es'?'¿Quieres el CV optimizado?':'Want the optimized resume?'}
+        </div>
+        <div style={{ fontSize:13, fontWeight:800, color:'#2563eb' }}>$12 →</div>
+      </div>
+    </div>
+  </div>
+);
 
 export default function App() {
-  const [language, setLanguage] = useState('es');
-  const [formData, setFormData] = useState({
-    nombre: '',
-    email: '',
-    telefono: '',
-    tieneCV: 'si',
-    tipoRevision: 'generica',
-    tipoCV: '',
-    puesto: '',
-    empresa: '',
-    industria: '',
-    linkOferta: '',
-    requisitosOferta: '',
-    infoAdicional: '',
-    cvFile: null,
-    linkedinFile: null
+  const [lang, setLang] = useState('es');
+  const plansRef = useRef(null);
+  const paidRef  = useRef(null);
+
+  // Free form
+  const [free, setFree] = useState({ nombre:'', email:'', cvFile:null });
+  const [freeOk, setFreeOk]     = useState(null);
+  const [freeSending, setFreeSending] = useState(false);
+  const [freeLimits, setFreeLimits]   = useState(false);
+  const [freeTerms, setFreeTerms]     = useState(false);
+
+  // Paid form
+  const [plan, setPlan] = useState(null);
+  const [paid, setPaid] = useState({
+    nombre:'', email:'', telefono:'', tieneCV:'si', tipoRevision:'',
+    tipoCV:'', puesto:'', empresa:'', industria:'', linkOferta:'',
+    requisitosOferta:'', infoAdicional:'', cvFile:null, linkedinFile:null
   });
+  const [paidOk, setPaidOk]       = useState(null);
+  const [paidSending, setPaidSending] = useState(false);
+  const [paidLimits, setPaidLimits]   = useState(false);
+  const [paidTerms, setPaidTerms]     = useState(false);
+  const [infoWords, setInfoWords] = useState(0);
+  const [reqWords, setReqWords]   = useState(0);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
-  const [wordCount, setWordCount] = useState(0);
-  const [reqWordCount, setReqWordCount] = useState(0);
-  const [aceptaTerminos, setAceptaTerminos] = useState(false);
-  const [aceptaLimitaciones, setAceptaLimitaciones] = useState(false);
+  const es = lang === 'es';
 
-  const infoWordLimit = formData.tieneCV === 'no' ? 1000 : 500;
-
-  const t = {
-    es: {
-      header: {
-        title: 'Nocodia CV',
-        subtitle: 'Optimizado con Inteligencia Artificial',
-        contact: 'Consultas'
-      },
-      hero: {
-        title1: 'Tu CV Profesional',
-        title2: 'Potenciado por IA',
-        subtitle: 'Análisis automático, optimización ATS, y CVs personalizados para destacar en tu industria'
-      },
-      pricing: {
-        freeTitle: 'Revisión',
-        free: 'GRATIS*',
-        freeDesc: 'Análisis profesional de tu CV con puntuación ATS y retroalimentación específica basada en tu documento real',
-        specialized: 'Especializada',
-        specializedPrice: '$12',
-        specializedItems: [
-          '✓ CV optimizado ATS',
-          '✓ Análisis compatibilidad CV vs oferta',
-          '✓ Carta de presentación',
-          '✓ Keywords ATS integradas',
-          '✓ Optimización LinkedIn',
-        ],
-        specializedNote: '(Puesto específico o mejora general)',
-        basic: 'Básico',
-        basicPrice: '$15',
-        basicDesc: 'CV profesional creado desde cero. Tú nos cuentas tu experiencia y nosotros lo construimos',
-        premium: 'Premium',
-        premiumPrice: '$20',
-        premiumItems: [
-          '✓ Todo lo de Especializada',
-          '✓ CV en Español e Inglés',
-          '✓ LinkedIn PDF analizado',
-          '✓ Headline + About LinkedIn ES & EN',
-          '✓ Carta de presentación ES & EN',
-        ],
-        premiumNote: '(Puesto específico o mejora general)',
-        recommended: '⭐ RECOMENDADO'
-      },
-      form: {
-        title: 'Solicita tu CV',
-        subtitle: 'Completa el formulario y recibe tu análisis',
-        section1: '1. Información Básica',
-        nombre: 'Nombre completo',
-        nombrePlaceholder: 'Juan Pérez',
-        email: 'Email',
-        emailPlaceholder: 'tu@email.com',
-        telefono: 'Teléfono',
-        telefonoPlaceholder: '+593 99 123 4567',
-        section2: '2. ¿Tienes CV actual?',
-        tienesSi: 'Sí, tengo CV para revisar',
-        tienesNo: 'No, necesito crear uno desde cero',
-        section3Upload: '3. Sube tu CV actual',
-        selectCV: 'Selecciona tu CV',
-        pdfMax: 'PDF, máximo 5MB',
-        section3LinkedIn: 'Sube tu LinkedIn PDF',
-        linkedinInstructions: '📱 Cómo descargar tu LinkedIn:',
-        linkedinStep1: 'Abre LinkedIn en tu navegador (no en la app)',
-        linkedinStep2: 'Ve a tu perfil (click en tu foto arriba)',
-        linkedinStep3: 'Click en "Más" (botón con 3 puntos)',
-        linkedinStep4: 'Selecciona "Guardar en PDF"',
-        linkedinStep5: 'Descarga el archivo y súbelo aquí ⬇️',
-        selectLinkedIn: 'Selecciona tu LinkedIn PDF',
-        tipoRevisionSection: 'Tipo de',
-        revision: 'revisión',
-        servicio: 'servicio',
-        revisionGenerica: 'Genérica',
-        revisionGenericaDesc: 'Análisis profesional con puntuación ATS y recomendaciones específicas',
-        revisionEspecializada: 'Especializada',
-        revisionEspecializadaDesc: 'CV optimizado + análisis de compatibilidad + carta de presentación',
-        revisionBasica: 'Básico',
-        revisionBasicaDesc: 'CV creado desde cero con tu experiencia',
-        revisionPremium: 'Premium',
-        revisionPremiumDesc: 'Especializada + versión en inglés + LinkedIn PDF + cartas ES & EN',
-        tipoCVSection: '¿Qué tipo de CV necesitas?',
-        especifico: 'Para un puesto específico',
-        especificoDesc: 'CV optimizado para una oferta de trabajo concreta',
-        especificoBullet1: '✓ Keywords específicas del puesto',
-        especificoBullet2: '✓ Análisis de compatibilidad CV vs oferta',
-        especificoBullet3: '✓ Carta de presentación personalizada',
-        especificoBullet4: '✓ Mayor probabilidad de entrevista',
-        general: 'General (mejorado)',
-        generalDesc: 'CV optimizado para aplicar a múltiples puestos',
-        generalBullet1: '✓ Formato profesional moderno',
-        generalBullet2: '✓ Optimización ATS general',
-        generalBullet3: '✓ Logros cuantificables destacados',
-        generalBullet4: '⚠️ Sin análisis de compatibilidad',
-        puestoSection: 'Información del puesto',
-        puestoNote: '📌 Optimizaremos tu CV para este puesto específico',
-        puestoNoteDesc: 'Mientras más detalles proporciones, mejor será la optimización',
-        puesto: '¿A qué puesto aplicas?',
-        puestoPlaceholder: 'ej: Gerente de Ventas',
-        industria: 'Industria/Sector',
-        industriaPlaceholder: 'ej: Tecnología, Finanzas',
-        empresa: 'Empresa (opcional)',
-        empresaPlaceholder: 'ej: Nocodia',
-        linkOferta: 'Link de la oferta (opcional)',
-        linkOfertaPlaceholder: 'https://...',
-        requisitosLabel: 'Requisitos del puesto *',
-        requisitosNote: '📋 Pega aquí la descripción de la oferta de trabajo',
-        requisitosNoteDesc: 'Copia los requisitos, responsabilidades y habilidades solicitadas. Esto nos permite generar un análisis de compatibilidad preciso y una carta de presentación personalizada.',
-        requisitosPlaceholder: 'Ejemplo:\n\nRequisitos:\n- 5+ años de experiencia en gestión de equipos\n- Conocimiento en metodologías ágiles\n- Manejo de presupuestos operativos\n\nResponsabilidades:\n- Liderar equipo de 20+ personas\n- Reportar a Gerencia General\n- Gestionar presupuesto operativo...',
-        infoSectionWithCV: 'Información adicional',
-        infoNoteWithCV: '💡 Agrega lo que NO está en tu CV actual (máx 500 palabras):',
-        infoDescWithCV: 'Esta información tiene la misma importancia que tu CV para optimizarlo.',
-        infoBulletsWithCV: [
-          'Logros recientes no actualizados en tu CV',
-          'Proyectos actuales en desarrollo',
-          'Resultados cuantificables específicos',
-          'Habilidades técnicas nuevas',
-          'Certificaciones en proceso',
-        ],
-        infoPlaceholderWithCV: 'Ejemplo: En mi rol actual como Gerente de Ventas aumenté las ventas B2B en 42% durante Q1 2026. Implementé un nuevo CRM que redujo el tiempo de cierre en 30%...',
-        infoSectionNoCV: 'Tu experiencia profesional',
-        infoNoteNoCV: '📝 Cuéntanos tu experiencia para crear tu CV desde cero (máx 1000 palabras):',
-        infoDescNoCV: 'Esta información es todo lo que tenemos para crear tu CV. Sé lo más detallado posible.',
-        infoBulletsNoCV: [
-          'Empresas donde trabajaste, tu puesto y fechas (ej: Gerente de Ventas en Empresa X, 2020-2024)',
-          'Principales responsabilidades y logros en cada puesto (con números si los tienes)',
-          'Formación académica: título, universidad y año de graduación',
-          'Habilidades técnicas y herramientas que manejas',
-          'Certificaciones, cursos e idiomas con nivel',
-          'Proyectos relevantes o logros destacados',
-        ],
-        infoPlaceholderNoCV: 'Ejemplo:\n\nEXPERIENCIA:\n- Gerente de Ventas en Empresa ABC (2020-2024)\n  • Lideré equipo de 8 vendedores\n  • Aumenté ventas en 35% en 2 años\n\nFORMACIÓN:\n- Ingeniería Comercial, Universidad Particular, 2016\n\nHABILIDADES:\n- Excel avanzado, Salesforce\n- Inglés B2',
-        palabras: 'Palabras:',
-        palabrasRestantes: 'palabras restantes',
-        submit: 'Solicitar análisis',
-        processing: 'Procesando...',
-        checkLimitaciones: 'Entiendo y acepto que Nocodia CV es un servicio de optimización de documentos profesionales. El servicio no garantiza que sea contactado para entrevistas de trabajo, que obtenga el empleo al que aplica, ni ningún resultado laboral específico. Los resultados dependen de múltiples factores externos ajenos a Nocodia CV.',
-        checkTerminos: 'He leído y acepto la Política de Privacidad, incluyendo el tratamiento de mis datos personales y su transferencia a servidores internacionales para la prestación del servicio, conforme a la Ley Orgánica de Protección de Datos Personales del Ecuador (LOPDP).',
-        politicaLink: 'Política de Privacidad',
-        legalNote: '* Primera revisión genérica gratuita por email. Servicios pagados requieren confirmación de pago. Nocodia CV cumple con la Ley Orgánica de Protección de Datos Personales del Ecuador (LOPDP, R.O. 459 — 26/05/2021). El servicio no garantiza resultados laborales específicos.',
-      },
-      features: {
-        ats: 'Optimización ATS',
-        atsDesc: 'Keywords y formato para pasar filtros automáticos',
-        compatibility: 'Análisis de Compatibilidad',
-        compatibilityDesc: 'Tu perfil comparado contra los requisitos reales del puesto',
-        coverLetter: 'Carta de Presentación',
-        coverLetterDesc: 'Personalizada para cada puesto, lista para enviar'
-      },
-      footer: {
-        rights: '© 2026 Nocodia CV - Todos los derechos reservados',
-        contact: 'Consultas:',
-        privacy: 'Política de Privacidad'
-      }
-    },
-    en: {
-      header: {
-        title: 'Nocodia CV',
-        subtitle: 'AI-Powered Optimization',
-        contact: 'Contact'
-      },
-      hero: {
-        title1: 'Your Professional Resume',
-        title2: 'AI-Powered',
-        subtitle: 'Automatic analysis, ATS optimization, and personalized resumes to stand out in your industry'
-      },
-      pricing: {
-        freeTitle: 'Review',
-        free: 'FREE*',
-        freeDesc: 'Professional analysis of your resume with ATS score and specific feedback based on your actual document',
-        specialized: 'Specialized',
-        specializedPrice: '$12',
-        specializedItems: [
-          '✓ ATS-optimized resume',
-          '✓ Compatibility analysis CV vs job',
-          '✓ Cover letter',
-          '✓ ATS keywords integrated',
-          '✓ LinkedIn optimization',
-        ],
-        specializedNote: '(Specific position or general improvement)',
-        basic: 'Basic',
-        basicPrice: '$15',
-        basicDesc: 'Professional resume created from scratch. You tell us your experience and we build it',
-        premium: 'Premium',
-        premiumPrice: '$20',
-        premiumItems: [
-          '✓ Everything in Specialized',
-          '✓ Resume in Spanish & English',
-          '✓ LinkedIn PDF analyzed',
-          '✓ LinkedIn Headline + About ES & EN',
-          '✓ Cover letter in Spanish & English',
-        ],
-        premiumNote: '(Specific position or general improvement)',
-        recommended: '⭐ RECOMMENDED'
-      },
-      form: {
-        title: 'Request Your Resume',
-        subtitle: 'Complete the form and receive your analysis',
-        section1: '1. Basic Information',
-        nombre: 'Full name',
-        nombrePlaceholder: 'John Smith',
-        email: 'Email',
-        emailPlaceholder: 'you@email.com',
-        telefono: 'Phone',
-        telefonoPlaceholder: '+1 555 123 4567',
-        section2: '2. Do you have a current resume?',
-        tienesSi: 'Yes, I have a resume to review',
-        tienesNo: 'No, I need to create one from scratch',
-        section3Upload: '3. Upload your current resume',
-        selectCV: 'Select your resume',
-        pdfMax: 'PDF, max 5MB',
-        section3LinkedIn: 'Upload your LinkedIn PDF',
-        linkedinInstructions: '📱 How to download your LinkedIn:',
-        linkedinStep1: 'Open LinkedIn in your browser (not the app)',
-        linkedinStep2: 'Go to your profile (click your photo)',
-        linkedinStep3: 'Click "More" (3 dots button)',
-        linkedinStep4: 'Select "Save to PDF"',
-        linkedinStep5: 'Download the file and upload it here ⬇️',
-        selectLinkedIn: 'Select your LinkedIn PDF',
-        tipoRevisionSection: 'Type of',
-        revision: 'review',
-        servicio: 'service',
-        revisionGenerica: 'Generic',
-        revisionGenericaDesc: 'Professional analysis with ATS score and specific recommendations',
-        revisionEspecializada: 'Specialized',
-        revisionEspecializadaDesc: 'Optimized resume + compatibility analysis + cover letter',
-        revisionBasica: 'Basic',
-        revisionBasicaDesc: 'Resume created from scratch with your experience',
-        revisionPremium: 'Premium',
-        revisionPremiumDesc: 'Specialized + English version + LinkedIn PDF + cover letters ES & EN',
-        tipoCVSection: 'What type of resume do you need?',
-        especifico: 'For a specific position',
-        especificoDesc: 'Resume optimized for a specific job posting',
-        especificoBullet1: '✓ Position-specific keywords',
-        especificoBullet2: '✓ Compatibility analysis CV vs job requirements',
-        especificoBullet3: '✓ Personalized cover letter',
-        especificoBullet4: '✓ Higher interview probability',
-        general: 'General (improved)',
-        generalDesc: 'Optimized resume for multiple positions',
-        generalBullet1: '✓ Modern professional format',
-        generalBullet2: '✓ General ATS optimization',
-        generalBullet3: '✓ Quantifiable achievements highlighted',
-        generalBullet4: '⚠️ No compatibility analysis',
-        puestoSection: 'Position Information',
-        puestoNote: '📌 We will optimize your resume for this specific position',
-        puestoNoteDesc: 'The more details you provide, the better the optimization',
-        puesto: 'What position are you applying for?',
-        puestoPlaceholder: 'ex: Sales Manager',
-        industria: 'Industry/Sector',
-        industriaPlaceholder: 'ex: Technology, Finance',
-        empresa: 'Company (optional)',
-        empresaPlaceholder: 'ex: Nocodia',
-        linkOferta: 'Job posting link (optional)',
-        linkOfertaPlaceholder: 'https://...',
-        requisitosLabel: 'Job requirements *',
-        requisitosNote: '📋 Paste the job description here',
-        requisitosNoteDesc: 'Copy the requirements, responsibilities and skills requested. This enables an accurate compatibility analysis and a personalized cover letter.',
-        requisitosPlaceholder: 'Example:\n\nRequirements:\n- 5+ years of team management experience\n- Knowledge of agile methodologies\n- Operational budget management\n\nResponsibilities:\n- Lead a team of 20+ people\n- Report to General Management...',
-        infoSectionWithCV: 'Additional Information',
-        infoNoteWithCV: '💡 Add what is NOT in your current resume (max 500 words):',
-        infoDescWithCV: 'This information is as important as your resume for optimization.',
-        infoBulletsWithCV: [
-          'Recent achievements not updated in your resume',
-          'Current projects in development',
-          'Specific quantifiable results',
-          'New technical skills',
-          'Certifications in progress',
-        ],
-        infoPlaceholderWithCV: 'Example: In my current role as Sales Manager I increased B2B sales by 42% during Q1 2026...',
-        infoSectionNoCV: 'Your professional experience',
-        infoNoteNoCV: '📝 Tell us your experience so we can create your resume from scratch (max 1000 words):',
-        infoDescNoCV: 'This information is everything we have to create your resume. Be as detailed as possible.',
-        infoBulletsNoCV: [
-          'Companies you worked at, your position and dates (ex: Sales Manager at Company X, 2020-2024)',
-          'Main responsibilities and achievements in each role (with numbers if you have them)',
-          'Academic background: degree, university and graduation year',
-          'Technical skills and tools you use',
-          'Certifications, courses and languages with level',
-          'Relevant projects or notable achievements',
-        ],
-        infoPlaceholderNoCV: 'Example:\n\nEXPERIENCE:\n- Sales Manager at Company ABC (2020-2024)\n  • Led team of 8 sales reps\n  • Increased sales by 35%\n\nEDUCATION:\n- Business Administration, University, 2016\n\nSKILLS:\n- Salesforce, Excel\n- English C1',
-        palabras: 'Words:',
-        palabrasRestantes: 'words remaining',
-        submit: 'Request analysis',
-        processing: 'Processing...',
-        checkLimitaciones: 'I understand and accept that Nocodia CV is a professional document optimization service. The service does not guarantee that I will be contacted for job interviews, that I will obtain the position I am applying for, or any specific employment outcome. Results depend on multiple external factors beyond Nocodia CV\'s control.',
-        checkTerminos: 'I have read and accept the Privacy Policy, including the processing of my personal data and its transfer to international servers for service delivery, in accordance with Ecuador\'s Organic Law on Personal Data Protection (LOPDP).',
-        politicaLink: 'Privacy Policy',
-        legalNote: '* First generic review free by email. Paid services require payment confirmation. Nocodia CV complies with Ecuador\'s Organic Law on Personal Data Protection (LOPDP, R.O. 459 — 26/05/2021). The service does not guarantee specific employment results.',
-      },
-      features: {
-        ats: 'ATS Optimization',
-        atsDesc: 'Keywords and format to pass automatic filters',
-        compatibility: 'Compatibility Analysis',
-        compatibilityDesc: 'Your profile compared against the real job requirements',
-        coverLetter: 'Cover Letter',
-        coverLetterDesc: 'Personalized for each position, ready to send'
-      },
-      footer: {
-        rights: '© 2026 Nocodia CV - All rights reserved',
-        contact: 'Contact:',
-        privacy: 'Privacy Policy'
-      }
-    }
-  };
-
-  const handleFileChange = (e, fileType) => {
-    const file = e.target.files[0];
-    if (file) setFormData(prev => ({ ...prev, [fileType]: file }));
-  };
-
-  const handleInfoChange = (e) => {
-    const text  = e.target.value;
-    const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-    const limit = formData.tieneCV === 'no' ? 1000 : 500;
-    if (words <= limit) { setFormData(prev => ({ ...prev, infoAdicional: text })); setWordCount(words); }
-  };
-
-  const handleRequisitosChange = (e) => {
-    const text  = e.target.value;
-    const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-    setFormData(prev => ({ ...prev, requisitosOferta: text }));
-    setReqWordCount(words);
-  };
-
-  const handleSubmit = async (e) => {
+  // ── Submit free ────────────────────────────────────────────────────────────
+  const submitFree = async e => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus(null);
+    setFreeSending(true); setFreeOk(null);
     try {
       const fd = new FormData();
-      Object.keys(formData).forEach(key => { if (formData[key]) fd.append(key, formData[key]); });
-      fd.append('formLanguage', language);
+      fd.append('nombre', free.nombre);
+      fd.append('email',  free.email);
+      if (free.cvFile) fd.append('cvFile', free.cvFile);
+      fd.append('tieneCV', 'si');
+      fd.append('tipoRevision', 'generica');
+      fd.append('formLanguage', lang);
+      const r = await fetch('https://nocodia-cv-worker.jraul-garcia.workers.dev/api/submit', { method:'POST', body:fd });
+      const j = await r.json();
+      setFreeOk(r.ok ? { ok:true, msg:j.message } : { ok:false, msg:j.error });
+      if (r.ok) { setFree({ nombre:'', email:'', cvFile:null }); setFreeLimits(false); setFreeTerms(false); }
+    } catch { setFreeOk({ ok:false, msg:'Error de conexión.' }); }
+    finally { setFreeSending(false); }
+  };
 
-      const response = await fetch('https://nocodia-cv-worker.jraul-garcia.workers.dev/api/submit', {
-        method: 'POST', body: fd
-      });
-      const result = await response.json();
-
-      if (response.ok) {
-        setSubmitStatus({ type: 'success', message: result.message });
-        setFormData({
-          nombre: '', email: '', telefono: '', tieneCV: 'si',
-          tipoRevision: 'generica', tipoCV: '', puesto: '', empresa: '',
-          industria: '', linkOferta: '', requisitosOferta: '',
-          infoAdicional: '', cvFile: null, linkedinFile: null
-        });
-        setWordCount(0);
-        setReqWordCount(0);
-        setAceptaTerminos(false);
-        setAceptaLimitaciones(false);
-      } else {
-        setSubmitStatus({ type: 'error', message: result.error || 'Error al procesar tu solicitud' });
+  // ── Submit paid ────────────────────────────────────────────────────────────
+  const submitPaid = async e => {
+    e.preventDefault();
+    setPaidSending(true); setPaidOk(null);
+    try {
+      const fd = new FormData();
+      Object.keys(paid).forEach(k => { if (paid[k]) fd.append(k, paid[k]); });
+      fd.append('formLanguage', lang);
+      const r = await fetch('https://nocodia-cv-worker.jraul-garcia.workers.dev/api/submit', { method:'POST', body:fd });
+      const j = await r.json();
+      setPaidOk(r.ok ? { ok:true, msg:j.message } : { ok:false, msg:j.error });
+      if (r.ok) {
+        setPaid({ nombre:'', email:'', telefono:'', tieneCV:'si', tipoRevision:plan, tipoCV:'', puesto:'', empresa:'', industria:'', linkOferta:'', requisitosOferta:'', infoAdicional:'', cvFile:null, linkedinFile:null });
+        setInfoWords(0); setReqWords(0); setPaidLimits(false); setPaidTerms(false);
       }
-    } catch (error) {
-      setSubmitStatus({ type: 'error', message: 'Error de conexión. Intenta nuevamente.' });
-    } finally {
-      setIsSubmitting(false);
-    }
+    } catch { setPaidOk({ ok:false, msg:'Error de conexión.' }); }
+    finally { setPaidSending(false); }
   };
 
-  const getPrice = () => {
-    if (formData.tipoRevision === 'generica')     return t[language].pricing.free;
-    if (formData.tipoRevision === 'especializada') return '$12';
-    if (formData.tipoRevision === 'basico')        return '$15';
-    if (formData.tipoRevision === 'premium')       return '$20';
-    return '';
+  const choosePlan = id => {
+    setPlan(id);
+    setPaid(p => ({ ...p, tipoRevision: id, tipoCV:'', cvFile:null, linkedinFile:null }));
+    setPaidOk(null);
+    setTimeout(() => paidRef.current?.scrollIntoView({ behavior:'smooth', block:'start' }), 80);
   };
 
-  const showTipoCVOption = formData.tipoRevision === 'especializada' || formData.tipoRevision === 'premium';
-  const showPuestoFields = formData.tipoCV === 'especifico';
-  const showInfoSection  = formData.tipoRevision !== 'generica';
-  const hasCV = formData.tieneCV === 'si';
+  const onInfo = e => {
+    const txt = e.target.value;
+    const limit = paid.tieneCV==='no' ? 1000 : 500;
+    const w = txt.trim().split(/\s+/).filter(Boolean).length;
+    if (w <= limit) { setPaid(p=>({...p,infoAdicional:txt})); setInfoWords(w); }
+  };
+  const onReq = e => {
+    const txt = e.target.value;
+    setPaid(p=>({...p,requisitosOferta:txt}));
+    setReqWords(txt.trim().split(/\s+/).filter(Boolean).length);
+  };
 
-  const infoSection    = hasCV ? t[language].form.infoSectionWithCV   : t[language].form.infoSectionNoCV;
-  const infoNote       = hasCV ? t[language].form.infoNoteWithCV      : t[language].form.infoNoteNoCV;
-  const infoDesc       = hasCV ? t[language].form.infoDescWithCV      : t[language].form.infoDescNoCV;
-  const infoBullets    = hasCV ? t[language].form.infoBulletsWithCV   : t[language].form.infoBulletsNoCV;
-  const infoPlaceholder = hasCV ? t[language].form.infoPlaceholderWithCV : t[language].form.infoPlaceholderNoCV;
+  const plans = [
+    { id:'especializada', price:'$12', badge:null,
+      title: es?'Especializada':'Specialized',
+      headline: es?'CV adaptado a una vacante real':'Resume tailored to a real job posting',
+      items: es
+        ? ['CV reescrito y optimizado ATS','Análisis de compatibilidad con la oferta','Carta de presentación personalizada','Keywords ATS integradas','Tips LinkedIn']
+        : ['Rewritten ATS-optimized resume','Compatibility analysis with the job','Personalized cover letter','ATS keywords integrated','LinkedIn tips'],
+      color:'#4f46e5' },
+    { id:'basico', price:'$15', badge:null,
+      title: es?'Básico':'Basic',
+      headline: es?'Te construimos el CV desde cero':'We build your resume from scratch',
+      items: es
+        ? ['CV profesional completo','Redactado con tu experiencia','Formato ATS optimizado','Listo para postular']
+        : ['Complete professional resume','Written with your experience','ATS-optimized format','Ready to apply'],
+      color:'#7c3aed' },
+    { id:'premium', price:'$20', badge: es?'⭐ RECOMENDADO':'⭐ RECOMMENDED',
+      title:'Premium',
+      headline: es?'Postulación bilingüe completa':'Complete bilingual application',
+      items: es
+        ? ['Todo lo de Especializada','CV en Español + Inglés','Carta en Español + Inglés','LinkedIn PDF analizado','Headline + About LinkedIn ES & EN']
+        : ['Everything in Specialized','Resume in Spanish + English','Cover letter in Spanish + English','LinkedIn PDF analyzed','Headline + About LinkedIn ES & EN'],
+      color:'#2563eb' },
+  ];
+
+  const showTipoCV  = ['especializada','premium'].includes(paid.tipoRevision);
+  const showPuesto  = paid.tipoCV === 'especifico';
+  const isPremium   = paid.tipoRevision === 'premium';
+  const isBasico    = paid.tipoRevision === 'basico';
+  const planLabel   = { especializada: es?'Especializada $12':'Specialized $12', basico: es?'Básico $15':'Basic $15', premium:'Premium $20' };
+
+  const field = (label, key, type='text', req=true, placeholder='') => (
+    <div>
+      <label style={{ display:'block', fontSize:11, fontWeight:700, color:'#6b7280', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:5 }}>{label}</label>
+      <input required={req} type={type} value={paid[key]} placeholder={placeholder}
+        onChange={e => setPaid(p=>({...p,[key]:e.target.value}))}
+        style={{ width:'100%', padding:'11px 14px', border:'1.5px solid #e5e7eb', borderRadius:10, fontSize:14, background:'white' }} />
+    </div>
+  );
+
+  const uploadBox = (label, key, req=true, purple=false) => (
+    <div>
+      <label style={{ display:'block', fontSize:11, fontWeight:700, color: purple?'#6d28d9':'#6b7280', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:5 }}>{label}</label>
+      <label className={`upload-box ${paid[key]?'done':''}`}
+        style={{ borderColor: paid[key]?'#10b981': purple?'#c4b5fd':'#d1d5db', background: paid[key]?'#f0fdf4': purple?'#faf5ff':'#f9fafb' }}>
+        <Upload size={18} color={paid[key]?'#10b981':purple?'#8b5cf6':'#9ca3af'} style={{ margin:'0 auto 6px', display:'block' }} />
+        <div style={{ fontSize:13, fontWeight:600, color: paid[key]?'#059669':purple?'#7c3aed':'#2563eb' }}>
+          {paid[key] ? `✓ ${paid[key].name}` : (es?'Haz click o arrastra aquí':'Click or drag here')}
+        </div>
+        <div style={{ fontSize:11, color:'#9ca3af', marginTop:2 }}>PDF · Max 5MB</div>
+        <input required={req} type="file" accept=".pdf" style={{ display:'none' }}
+          onChange={e => { if(e.target.files[0]) setPaid(p=>({...p,[key]:e.target.files[0]})); }} />
+      </label>
+    </div>
+  );
+
+  const checks = (limits, setLimits, terms, setTerms) => (
+    <div style={{ display:'flex', flexDirection:'column', gap:8, paddingTop:12, borderTop:'1px solid #f3f4f6' }}>
+      {[
+        { v:limits, fn:setLimits,
+          text: es
+            ? 'Entiendo que Nocodia CV optimiza documentos y no garantiza entrevistas ni resultados laborales.'
+            : 'I understand Nocodia CV optimizes documents and does not guarantee interviews or employment results.' },
+        { v:terms, fn:setTerms,
+          text: null, link: true },
+      ].map((c,i) => (
+        <label key={i} style={{ display:'flex', gap:8, cursor:'pointer', alignItems:'flex-start' }}>
+          <input type="checkbox" required checked={c.v} onChange={e=>c.fn(e.target.checked)} style={{ marginTop:2, flexShrink:0 }} />
+          <span style={{ fontSize:11, color:'#6b7280', lineHeight:1.5 }}>
+            {c.link
+              ? <>{es?'Acepto la ':'I accept the '}<a href="/politica-privacidad.html" target="_blank" rel="noopener noreferrer" style={{ color:'#2563eb' }}>{es?'Política de Privacidad':'Privacy Policy'}</a>{es?' y el tratamiento de mis datos conforme a la LOPDP Ecuador.':' and the processing of my data in accordance with Ecuador\'s LOPDP.'}</>
+              : c.text}
+          </span>
+        </label>
+      ))}
+    </div>
+  );
+
+  const statusBox = s => s && (
+    <div style={{ padding:'11px 14px', borderRadius:10, background:s.ok?'#f0fdf4':'#fef2f2', border:`1px solid ${s.ok?'#bbf7d0':'#fecaca'}`, fontSize:13, color:s.ok?'#065f46':'#991b1b', display:'flex', gap:8, alignItems:'flex-start' }}>
+      {s.ok ? <CheckCircle size={14} style={{ flexShrink:0, marginTop:1 }} /> : <AlertCircle size={14} style={{ flexShrink:0, marginTop:1 }} />}
+      {s.msg}
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <>
+      <FontLink />
 
-      {/* HEADER */}
-      <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-serif font-bold text-slate-900">{t[language].header.title}</h1>
-              <p className="text-sm text-slate-600 mt-1">{t[language].header.subtitle}</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex gap-2">
-                <button onClick={() => setLanguage('es')}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition-all ${language === 'es' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
-                  🇪🇸 ES
+      {/* ── HEADER ─────────────────────────────────────────────────────────── */}
+      <header style={{ position:'sticky', top:0, zIndex:50, background:'rgba(255,255,255,0.95)', backdropFilter:'blur(10px)', borderBottom:'1px solid #f3f4f6' }}>
+        <div style={{ maxWidth:1080, margin:'0 auto', padding:'0 20px', height:56, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <span className="serif" style={{ fontSize:18, color:'#111827', letterSpacing:'-0.02em' }}>Nocodia CV</span>
+          <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+            <div style={{ display:'flex', gap:4 }}>
+              {['es','en'].map(l=>(
+                <button key={l} onClick={()=>setLang(l)}
+                  style={{ padding:'4px 10px', borderRadius:6, border:'none', cursor:'pointer', fontSize:12, fontWeight:600, fontFamily:'inherit', background:lang===l?'#2563eb':'#f3f4f6', color:lang===l?'white':'#6b7280', transition:'all .15s' }}>
+                  {l==='es'?'🇪🇸 ES':'🇬🇧 EN'}
                 </button>
-                <button onClick={() => setLanguage('en')}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition-all ${language === 'en' ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
-                  🇬🇧 EN
-                </button>
-              </div>
-              <div className="text-right hidden sm:block">
-                <p className="text-sm text-slate-600">{t[language].header.contact}</p>
-                <a href="mailto:jrgarcia@nocodia.net" className="text-sm font-medium text-blue-700 hover:text-blue-800">jrgarcia@nocodia.net</a>
-              </div>
+              ))}
             </div>
+            <a href="mailto:jrgarcia@nocodia.net" style={{ fontSize:12, color:'#6b7280', textDecoration:'none' }}>jrgarcia@nocodia.net</a>
           </div>
         </div>
       </header>
 
-      <section className="max-w-5xl mx-auto px-6 py-16">
+      {/* ── HERO ───────────────────────────────────────────────────────────── */}
+      <section style={{ background:'linear-gradient(160deg,#0f172a 0%,#1e3a5f 60%,#0f172a 100%)', padding:'64px 20px 80px' }}>
+        <div style={{ maxWidth:1080, margin:'0 auto' }}>
 
-        {/* HERO */}
-        <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-serif font-bold text-slate-900 mb-6 leading-tight">
-            {t[language].hero.title1}<br />
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{t[language].hero.title2}</span>
-          </h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">{t[language].hero.subtitle}</p>
-        </div>
-
-        {/* PRICING */}
-        <div className="grid md:grid-cols-4 gap-4 mb-16">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col">
-            <div className="text-sm font-semibold text-blue-600 uppercase tracking-wide mb-2">{t[language].pricing.freeTitle}</div>
-            <div className="text-3xl font-bold text-slate-900 mb-3">{t[language].pricing.free}</div>
-            <p className="text-sm text-slate-600 flex-1">{t[language].pricing.freeDesc}</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col">
-            <div className="text-sm font-semibold text-indigo-600 uppercase tracking-wide mb-2">{t[language].pricing.specialized}</div>
-            <div className="text-3xl font-bold text-slate-900 mb-3">{t[language].pricing.specializedPrice}</div>
-            <ul className="flex-1 space-y-1.5 mb-3">
-              {t[language].pricing.specializedItems.map((item, i) => (
-                <li key={i} className="text-xs text-slate-600">{item}</li>
+          {/* Headline */}
+          <div style={{ textAlign:'center', marginBottom:48 }}>
+            <div className="fade-up" style={{ display:'inline-block', background:'rgba(59,130,246,0.15)', border:'1px solid rgba(59,130,246,0.3)', borderRadius:20, padding:'5px 14px', fontSize:11, fontWeight:700, color:'#93c5fd', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:20 }}>
+              IA · {es?'Análisis profesional':'Professional analysis'}
+            </div>
+            <h1 className="serif fade-up d1" style={{ fontSize:'clamp(32px,5vw,52px)', color:'white', margin:'0 0 16px', lineHeight:1.1, letterSpacing:'-0.03em' }}>
+              {es?<>¿Tu CV está siendo<br/><span style={{color:'#60a5fa'}}>ignorado?</span></>:<>Is your resume being<br/><span style={{color:'#60a5fa'}}>ignored?</span></>}
+            </h1>
+            <p className="fade-up d2" style={{ fontSize:16, color:'rgba(255,255,255,0.65)', maxWidth:440, margin:'0 auto 24px', lineHeight:1.7 }}>
+              {es
+                ? 'Analízalo gratis con IA y descubre exactamente qué está frenando tus oportunidades.'
+                : 'Analyze it free with AI and discover exactly what\'s holding back your opportunities.'}
+            </p>
+            <div className="fade-up d3" style={{ display:'flex', justifyContent:'center', gap:20, flexWrap:'wrap' }}>
+              {(es
+                ? ['Errores ATS que te dejan fuera','Keywords faltantes en tu sector','Compatibilidad con vacantes reales','Acciones concretas para mejorar hoy']
+                : ['ATS errors keeping you out','Missing keywords in your field','Compatibility with real job postings','Concrete actions to improve today']
+              ).map((b,i) => (
+                <div key={i} style={{ display:'flex', alignItems:'center', gap:8, fontSize:13, color:'rgba(255,255,255,0.75)' }}>
+                  <span style={{ width:18, height:18, borderRadius:'50%', background:'rgba(16,185,129,0.25)', border:'1px solid rgba(16,185,129,0.5)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, flexShrink:0 }}>✓</span>
+                  {b}
+                </div>
               ))}
-            </ul>
-            <p className="text-xs text-slate-400">{t[language].pricing.specializedNote}</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col">
-            <div className="text-sm font-semibold text-purple-600 uppercase tracking-wide mb-2">{t[language].pricing.basic}</div>
-            <div className="text-3xl font-bold text-slate-900 mb-3">{t[language].pricing.basicPrice}</div>
-            <p className="text-sm text-slate-600 flex-1">{t[language].pricing.basicDesc}</p>
-          </div>
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-6 shadow-lg border-2 border-blue-700 relative overflow-hidden flex flex-col">
-            <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded">{t[language].pricing.recommended}</div>
-            <div className="text-sm font-semibold text-blue-100 uppercase tracking-wide mb-2">{t[language].pricing.premium}</div>
-            <div className="text-3xl font-bold text-white mb-3">{t[language].pricing.premiumPrice}</div>
-            <ul className="flex-1 space-y-1.5 mb-3">
-              {t[language].pricing.premiumItems.map((item, i) => (
-                <li key={i} className="text-xs text-blue-100">{item}</li>
-              ))}
-            </ul>
-            <p className="text-xs text-blue-300">{t[language].pricing.premiumNote}</p>
-          </div>
-        </div>
-
-        {/* FORM */}
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-slate-800 to-slate-900 px-8 py-6">
-            <h3 className="text-2xl font-serif font-bold text-white">{t[language].form.title}</h3>
-            <p className="text-slate-300 mt-1">{t[language].form.subtitle}</p>
+            </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="p-8 space-y-8">
+          {/* 2-col: screenshot + form */}
+          <div className="hero-grid fade-up d3" style={{ display:'grid', gridTemplateColumns:'1.1fr 1fr', gap:32, alignItems:'start' }}>
 
-            {/* S1 — Datos básicos */}
-            <section>
-              <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">{t[language].form.section1}</h4>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">{t[language].form.nombre} *</label>
-                  <input type="text" required value={formData.nombre}
-                    onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder={t[language].form.nombrePlaceholder} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">{t[language].form.email} *</label>
-                  <input type="email" required value={formData.email}
-                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder={t[language].form.emailPlaceholder} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">{t[language].form.telefono}</label>
-                  <input type="tel" value={formData.telefono}
-                    onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    placeholder={t[language].form.telefonoPlaceholder} />
-                </div>
+            {/* Screenshot */}
+            <div>
+              <div style={{ fontSize:11, fontWeight:700, color:'#10b981', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:10 }}>
+                👇 {es?'Esto es lo que recibes':'This is what you receive'}
               </div>
-            </section>
+              <ResultPreview lang={lang} />
+            </div>
 
-            {/* S2 — ¿Tienes CV? */}
-            <section>
-              <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">{t[language].form.section2}</h4>
-              <div className="space-y-3">
-                <label className="flex items-center p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-                  <input type="radio" name="tieneCV" value="si" checked={formData.tieneCV === 'si'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'generica', tipoCV: '', infoAdicional: '' }))}
-                    className="w-4 h-4 text-blue-600" />
-                  <span className="ml-3 text-slate-900 font-medium">{t[language].form.tienesSi}</span>
-                </label>
-                <label className="flex items-center p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-                  <input type="radio" name="tieneCV" value="no" checked={formData.tieneCV === 'no'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tieneCV: e.target.value, tipoRevision: 'basico', tipoCV: '', infoAdicional: '' }))}
-                    className="w-4 h-4 text-blue-600" />
-                  <span className="ml-3 text-slate-900 font-medium">{t[language].form.tienesNo}</span>
-                </label>
-              </div>
-            </section>
-
-            {/* S3 — Subir CV */}
-            {formData.tieneCV === 'si' && (
-              <section>
-                <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">{t[language].form.section3Upload}</h4>
-                <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
-                  <Upload className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                  <label className="cursor-pointer">
-                    <span className="text-blue-600 font-medium hover:text-blue-700">{t[language].form.selectCV}</span>
-                    <input type="file" accept=".pdf" onChange={(e) => handleFileChange(e, 'cvFile')} className="hidden" required={formData.tieneCV === 'si'} />
-                  </label>
-                  <p className="text-sm text-slate-500 mt-2">{t[language].form.pdfMax}</p>
-                  {formData.cvFile && <p className="text-sm text-green-600 mt-3 font-medium">✓ {formData.cvFile.name}</p>}
+            {/* Free form */}
+            <div>
+              <form onSubmit={submitFree} style={{ background:'white', borderRadius:20, padding:28, boxShadow:'0 24px 48px rgba(0,0,0,.3)' }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'#10b981', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:4 }}>
+                  {es?'Gratis · Sin costo':'Free · No cost'}
                 </div>
-              </section>
-            )}
+                <h2 className="serif" style={{ fontSize:22, color:'#111827', margin:'0 0 20px', letterSpacing:'-0.02em' }}>
+                  {es?'Analiza tu CV gratis':'Analyze your resume free'}
+                </h2>
 
-            {/* LinkedIn (Premium) */}
-            {formData.tipoRevision === 'premium' && (
-              <section>
-                <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' ? '4' : '3'}. {t[language].form.section3LinkedIn}
-                </h4>
-                <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-300 rounded-lg p-6">
-                  <div className="bg-white rounded-lg p-4 mb-4 border border-purple-200">
-                    <p className="font-semibold text-purple-900 mb-2 text-sm">{t[language].form.linkedinInstructions}</p>
-                    <ol className="text-sm text-slate-700 space-y-1 list-decimal list-inside">
-                      <li>{t[language].form.linkedinStep1}</li>
-                      <li>{t[language].form.linkedinStep2}</li>
-                      <li>{t[language].form.linkedinStep3}</li>
-                      <li>{t[language].form.linkedinStep4}</li>
-                      <li>{t[language].form.linkedinStep5}</li>
-                    </ol>
-                  </div>
-                  <div className="border-2 border-dashed border-purple-400 rounded-lg p-6 text-center hover:border-purple-600 transition-colors bg-white">
-                    <Upload className="w-10 h-10 text-purple-500 mx-auto mb-3" />
-                    <label className="cursor-pointer">
-                      <span className="text-purple-600 font-medium hover:text-purple-700 text-lg">{t[language].form.selectLinkedIn}</span>
-                      <input type="file" accept=".pdf" onChange={(e) => handleFileChange(e, 'linkedinFile')} className="hidden" required={formData.tipoRevision === 'premium'} />
+                <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                  {[
+                    { key:'nombre', label:es?'Tu nombre':'Your name', placeholder:es?'Juan Pérez':'John Smith', type:'text' },
+                    { key:'email',  label:'Email', placeholder:es?'tu@email.com':'you@email.com', type:'email' },
+                  ].map(f=>(
+                    <div key={f.key}>
+                      <label style={{ display:'block', fontSize:11, fontWeight:700, color:'#6b7280', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:5 }}>{f.label}</label>
+                      <input required type={f.type} value={free[f.key]} placeholder={f.placeholder}
+                        onChange={e=>setFree(p=>({...p,[f.key]:e.target.value}))}
+                        style={{ width:'100%', padding:'11px 14px', border:'1.5px solid #e5e7eb', borderRadius:10, fontSize:14 }} />
+                    </div>
+                  ))}
+
+                  <div>
+                    <label style={{ display:'block', fontSize:11, fontWeight:700, color:'#6b7280', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:5 }}>
+                      {es?'Sube tu CV (PDF)':'Upload your resume (PDF)'}
                     </label>
-                    <p className="text-sm text-slate-500 mt-2">{t[language].form.pdfMax}</p>
-                    {formData.linkedinFile && <p className="text-sm text-purple-600 mt-3 font-medium">✓ {formData.linkedinFile.name}</p>}
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {/* Tipo de revisión */}
-            <section>
-              <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                {formData.tieneCV === 'si' ? (formData.tipoRevision === 'premium' ? '5' : '4') : (formData.tipoRevision === 'premium' ? '4' : '3')}. {t[language].form.tipoRevisionSection} {formData.tieneCV === 'si' ? t[language].form.revision : t[language].form.servicio}
-              </h4>
-              <div className="space-y-3">
-                {formData.tieneCV === 'si' && (
-                  <label className="flex items-start p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-                    <input type="radio" name="tipoRevision" value="generica" checked={formData.tipoRevision === 'generica'}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value, tipoCV: '' }))}
-                      className="w-4 h-4 text-blue-600 mt-1" />
-                    <div className="ml-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-slate-900 font-medium">{t[language].form.revisionGenerica}</span>
-                        <span className="text-green-600 font-bold text-sm">{t[language].pricing.free}</span>
+                    <label className={`upload-box ${free.cvFile?'done':''}`}>
+                      <Upload size={18} color={free.cvFile?'#10b981':'#9ca3af'} style={{ margin:'0 auto 5px', display:'block' }} />
+                      <div style={{ fontSize:13, fontWeight:600, color:free.cvFile?'#059669':'#2563eb' }}>
+                        {free.cvFile?`✓ ${free.cvFile.name}`:(es?'Haz click aquí':'Click here')}
                       </div>
-                      <p className="text-sm text-slate-600 mt-1">{t[language].form.revisionGenericaDesc}</p>
-                    </div>
-                  </label>
-                )}
-                <label className="flex items-start p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-                  <input type="radio" name="tipoRevision" value="especializada" checked={formData.tipoRevision === 'especializada'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value, tipoCV: '' }))}
-                    className="w-4 h-4 text-blue-600 mt-1" />
-                  <div className="ml-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-900 font-medium">{t[language].form.revisionEspecializada}</span>
-                      <span className="text-blue-600 font-bold text-sm">$12</span>
-                    </div>
-                    <p className="text-sm text-slate-600 mt-1">{t[language].form.revisionEspecializadaDesc}</p>
+                      <div style={{ fontSize:11, color:'#9ca3af', marginTop:1 }}>PDF · {es?'Máx 5MB':'Max 5MB'}</div>
+                      <input required type="file" accept=".pdf" style={{ display:'none' }}
+                        onChange={e=>{ if(e.target.files[0]) setFree(p=>({...p,cvFile:e.target.files[0]})); }} />
+                    </label>
                   </div>
-                </label>
-                <label className="flex items-start p-4 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-                  <input type="radio" name="tipoRevision" value="basico" checked={formData.tipoRevision === 'basico'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value, tipoCV: '' }))}
-                    className="w-4 h-4 text-blue-600 mt-1" />
-                  <div className="ml-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-900 font-medium">{t[language].form.revisionBasica}</span>
-                      <span className="text-purple-600 font-bold text-sm">$15</span>
-                    </div>
-                    <p className="text-sm text-slate-600 mt-1">{t[language].form.revisionBasicaDesc}</p>
-                  </div>
-                </label>
-                <label className="flex items-start p-4 border-2 border-blue-500 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
-                  <input type="radio" name="tipoRevision" value="premium" checked={formData.tipoRevision === 'premium'}
-                    onChange={(e) => setFormData(prev => ({ ...prev, tipoRevision: e.target.value, tipoCV: '' }))}
-                    className="w-4 h-4 text-blue-600 mt-1" />
-                  <div className="ml-3 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-900 font-medium">{t[language].form.revisionPremium}</span>
-                      <span className="text-blue-600 font-bold text-sm">$20</span>
-                      <span className="text-xs bg-yellow-400 text-yellow-900 px-2 py-1 rounded font-bold">{t[language].pricing.recommended}</span>
-                    </div>
-                    <p className="text-sm text-slate-700 mt-1">{t[language].form.revisionPremiumDesc}</p>
-                  </div>
-                </label>
-              </div>
-            </section>
 
-            {/* Tipo CV */}
-            {showTipoCVOption && (
-              <section>
-                <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' ? '6' :
-                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' ? '5' :
-                   formData.tieneCV === 'si' ? '5' : '4'}. {t[language].form.tipoCVSection}
-                </h4>
-                <div className="space-y-3">
-                  <label className="flex items-start p-5 border-2 border-blue-300 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
-                    <input type="radio" name="tipoCV" value="especifico" checked={formData.tipoCV === 'especifico'}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tipoCV: e.target.value }))}
-                      required={showTipoCVOption} className="w-4 h-4 text-blue-600 mt-1" />
-                    <div className="ml-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-slate-900 font-bold">{t[language].form.especifico}</span>
-                        <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded font-semibold">{t[language].pricing.recommended}</span>
-                      </div>
-                      <p className="text-sm text-slate-700 mb-2">{t[language].form.especificoDesc}</p>
-                      <div className="bg-white rounded p-3 text-xs text-slate-600 space-y-1">
-                        <p>{t[language].form.especificoBullet1}</p>
-                        <p>{t[language].form.especificoBullet2}</p>
-                        <p>{t[language].form.especificoBullet3}</p>
-                        <p>{t[language].form.especificoBullet4}</p>
-                      </div>
-                    </div>
-                  </label>
-                  <label className="flex items-start p-5 border-2 border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors">
-                    <input type="radio" name="tipoCV" value="general" checked={formData.tipoCV === 'general'}
-                      onChange={(e) => setFormData(prev => ({ ...prev, tipoCV: e.target.value }))}
-                      required={showTipoCVOption} className="w-4 h-4 text-blue-600 mt-1" />
-                    <div className="ml-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-slate-900 font-bold">{t[language].form.general}</span>
-                      </div>
-                      <p className="text-sm text-slate-700 mb-2">{t[language].form.generalDesc}</p>
-                      <div className="bg-slate-50 rounded p-3 text-xs text-slate-600 space-y-1">
-                        <p>{t[language].form.generalBullet1}</p>
-                        <p>{t[language].form.generalBullet2}</p>
-                        <p>{t[language].form.generalBullet3}</p>
-                        <p>{t[language].form.generalBullet4}</p>
-                      </div>
-                    </div>
-                  </label>
-                </div>
-              </section>
-            )}
+                  {checks(freeLimits, setFreeLimits, freeTerms, setFreeTerms)}
+                  {statusBox(freeOk)}
 
-            {/* Puesto + Requisitos */}
-            {showPuestoFields && (
-              <section>
-                <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' ? '7' :
-                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' ? '6' :
-                   formData.tieneCV === 'si' ? '6' : '5'}. {t[language].form.puestoSection}
-                </h4>
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
-                  <p className="text-sm font-semibold text-blue-900 mb-1">{t[language].form.puestoNote}</p>
-                  <p className="text-xs text-blue-700">{t[language].form.puestoNoteDesc}</p>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">{t[language].form.puesto} *</label>
-                    <input type="text" required value={formData.puesto}
-                      onChange={(e) => setFormData(prev => ({ ...prev, puesto: e.target.value }))}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder={t[language].form.puestoPlaceholder} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">{t[language].form.industria} *</label>
-                    <input type="text" required value={formData.industria}
-                      onChange={(e) => setFormData(prev => ({ ...prev, industria: e.target.value }))}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder={t[language].form.industriaPlaceholder} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">{t[language].form.empresa}</label>
-                    <input type="text" value={formData.empresa}
-                      onChange={(e) => setFormData(prev => ({ ...prev, empresa: e.target.value }))}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder={t[language].form.empresaPlaceholder} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">{t[language].form.linkOferta}</label>
-                    <input type="url" value={formData.linkOferta}
-                      onChange={(e) => setFormData(prev => ({ ...prev, linkOferta: e.target.value }))}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder={t[language].form.linkOfertaPlaceholder} />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">{t[language].form.requisitosLabel}</label>
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
-                    <p className="text-sm font-semibold text-amber-800 mb-1">{t[language].form.requisitosNote}</p>
-                    <p className="text-xs text-amber-700">{t[language].form.requisitosNoteDesc}</p>
-                  </div>
-                  <textarea required value={formData.requisitosOferta} onChange={handleRequisitosChange} rows={8}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                    placeholder={t[language].form.requisitosPlaceholder} />
-                  <p className="text-sm text-slate-500 mt-1">{t[language].form.requisitosWordCount || 'Palabras:'} {reqWordCount}</p>
-                </div>
-              </section>
-            )}
+                  <button type="submit" className="btn-primary" disabled={freeSending||!freeTerms||!freeLimits}>
+                    {freeSending?(es?'Analizando...':'Analyzing...'):(es?'Analizar mi CV gratis →':'Analyze my resume free →')}
+                  </button>
 
-            {/* Info adicional / desde cero */}
-            {showInfoSection && (
-              <section>
-                <h4 className="text-lg font-semibold text-slate-900 mb-4 pb-2 border-b border-slate-200">
-                  {formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'especifico' ? '9' :
-                   formData.tieneCV === 'si' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general'   ? '8' :
-                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && formData.tipoCV === 'especifico' ? '8' :
-                   formData.tieneCV === 'no' && formData.tipoRevision === 'premium' && formData.tipoCV === 'general'   ? '7' :
-                   formData.tieneCV === 'si' && formData.tipoCV === 'especifico' ? '8' :
-                   formData.tieneCV === 'si' && formData.tipoCV === 'general'    ? '7' :
-                   formData.tieneCV === 'no' ? '4' :
-                   formData.tipoCV === 'especifico' ? '7' : '6'}. {infoSection}
-                </h4>
-                <div className={`border rounded-lg p-4 mb-4 ${formData.tieneCV === 'no' ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200'}`}>
-                  <p className={`text-sm font-semibold mb-2 ${formData.tieneCV === 'no' ? 'text-green-800' : 'text-slate-700'}`}>{infoNote}</p>
-                  <p className={`text-xs mb-2 ${formData.tieneCV === 'no' ? 'text-green-700' : 'text-slate-600'}`}>{infoDesc}</p>
-                  <ul className={`text-sm space-y-1 ml-4 list-disc ${formData.tieneCV === 'no' ? 'text-green-700' : 'text-slate-600'}`}>
-                    {infoBullets.map((bullet, i) => (<li key={i}>{bullet}</li>))}
-                  </ul>
-                </div>
-                <textarea value={formData.infoAdicional} onChange={handleInfoChange}
-                  rows={formData.tieneCV === 'no' ? 12 : 6}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                  placeholder={infoPlaceholder}
-                  required={formData.tieneCV === 'no'} />
-                <div className="flex justify-between items-center mt-2">
-                  <p className="text-sm text-slate-600">{t[language].form.palabras} {wordCount}/{infoWordLimit}</p>
-                  {wordCount > infoWordLimit * 0.9 && (
-                    <p className="text-sm text-amber-600 font-medium">{infoWordLimit - wordCount} {t[language].form.palabrasRestantes}</p>
-                  )}
-                </div>
-              </section>
-            )}
-
-            {/* TÉRMINOS, CHECKBOXES Y SUBMIT */}
-            <div className="pt-6 border-t border-slate-200 space-y-4">
-
-              {/* CHECKBOX 1 — Limitaciones del servicio */}
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={aceptaLimitaciones}
-                  onChange={(e) => setAceptaLimitaciones(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0 rounded"
-                  required
-                />
-                <span className="text-xs text-slate-500 leading-relaxed group-hover:text-slate-700 transition-colors">
-                  {t[language].form.checkLimitaciones}
-                </span>
-              </label>
-
-              {/* CHECKBOX 2 — Privacidad y LOPDP */}
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={aceptaTerminos}
-                  onChange={(e) => setAceptaTerminos(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0 rounded"
-                  required
-                />
-                <span className="text-xs text-slate-500 leading-relaxed group-hover:text-slate-700 transition-colors">
-                  {language === 'es' ? (
-                    <>He leído y acepto la{' '}
-                      <a href="/politica-privacidad.html" target="_blank" rel="noopener noreferrer"
-                        className="text-blue-600 underline hover:text-blue-700 font-medium">
-                        {t[language].form.politicaLink}
-                      </a>
-                      , incluyendo el tratamiento de mis datos personales y su transferencia a servidores internacionales para la prestación del servicio, conforme a la <strong>Ley Orgánica de Protección de Datos Personales del Ecuador (LOPDP)</strong>.
-                    </>
-                  ) : (
-                    <>I have read and accept the{' '}
-                      <a href="/politica-privacidad.html" target="_blank" rel="noopener noreferrer"
-                        className="text-blue-600 underline hover:text-blue-700 font-medium">
-                        {t[language].form.politicaLink}
-                      </a>
-                      , including the processing of my personal data and its transfer to international servers for service delivery, in accordance with <strong>Ecuador's Organic Law on Personal Data Protection (LOPDP)</strong>.
-                    </>
-                  )}
-                </span>
-              </label>
-
-              {/* MENSAJE ÉXITO / ERROR */}
-              {submitStatus && (
-                <div className={`p-4 rounded-lg flex items-start gap-3 ${
-                  submitStatus.type === 'success' ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
-                }`}>
-                  {submitStatus.type === 'success'
-                    ? <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                    : <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />}
-                  <p className={`text-sm font-medium ${submitStatus.type === 'success' ? 'text-green-800' : 'text-red-800'}`}>
-                    {submitStatus.message}
+                  <p style={{ fontSize:11, color:'#9ca3af', textAlign:'center', margin:0 }}>
+                    {es?'Sin costo · Entrega por email · 100% confidencial':'No cost · Email delivery · 100% confidential'}
                   </p>
+                </div>
+              </form>
+
+              {/* Arrow to plans */}
+              <button onClick={()=>plansRef.current?.scrollIntoView({behavior:'smooth'})}
+                style={{ display:'flex', alignItems:'center', gap:6, margin:'16px auto 0', background:'none', border:'none', cursor:'pointer', fontSize:13, color:'rgba(255,255,255,0.5)' }}>
+                <ArrowDown size={14}/> {es?'Ver servicios pagados':'See paid services'}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── PLANS ──────────────────────────────────────────────────────────── */}
+      <section ref={plansRef} style={{ background:'#f9fafb', padding:'72px 20px' }}>
+        <div style={{ maxWidth:1080, margin:'0 auto' }}>
+          <div style={{ textAlign:'center', marginBottom:40 }}>
+            <div style={{ display:'inline-block', background:'#fef3c7', color:'#92400e', borderRadius:20, padding:'4px 12px', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:12 }}>
+              {es?'¿Quieres ir más allá?':'Want to go further?'}
+            </div>
+            <h2 className="serif" style={{ fontSize:'clamp(26px,4vw,38px)', color:'#111827', margin:'0 0 10px', letterSpacing:'-0.02em' }}>
+              {es?'Para una postulación más fuerte':'For a stronger application'}
+            </h2>
+            <p style={{ fontSize:15, color:'#6b7280', maxWidth:480, margin:'0 auto' }}>
+              {es
+                ? 'Servicios diseñados para candidatos que quieren resultados reales.'
+                : 'Services designed for candidates who want real results.'}
+            </p>
+          </div>
+
+          <div className="plans-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
+            {plans.map(p=>(
+              <div key={p.id} className={`plan-card ${plan===p.id?'active':''}`} onClick={()=>choosePlan(p.id)}
+                style={{ borderColor: plan===p.id?p.color:'#e5e7eb', position:'relative' }}>
+                {p.badge && (
+                  <div style={{ position:'absolute', top:14, right:14, background:'#fbbf24', color:'#78350f', fontSize:10, fontWeight:700, padding:'2px 8px', borderRadius:6 }}>{p.badge}</div>
+                )}
+                <div style={{ fontSize:10, fontWeight:700, color:p.color, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>{p.title}</div>
+                <div className="serif" style={{ fontSize:36, color:'#111827', marginBottom:6 }}>{p.price}</div>
+                <p style={{ fontSize:14, fontWeight:600, color:'#374151', margin:'0 0 16px', lineHeight:1.4 }}>{p.headline}</p>
+                <ul style={{ listStyle:'none', display:'flex', flexDirection:'column', gap:7, marginBottom:20 }}>
+                  {p.items.map((item,i)=>(
+                    <li key={i} style={{ display:'flex', gap:7, alignItems:'flex-start', fontSize:13, color:'#4b5563' }}>
+                      <span style={{ color:p.color, flexShrink:0, marginTop:1 }}>✓</span>{item}
+                    </li>
+                  ))}
+                </ul>
+                <button style={{ width:'100%', padding:'11px', borderRadius:10, border:`1.5px solid ${p.color}`, background:plan===p.id?p.color:'transparent', color:plan===p.id?'white':p.color, fontSize:13, fontWeight:700, cursor:'pointer', transition:'all .2s', fontFamily:'inherit' }}>
+                  {plan===p.id?(es?'✓ Seleccionado':'✓ Selected'):(es?'Solicitar este →':'Request this →')}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PAID FORM ──────────────────────────────────────────────────────── */}
+      {plan && (
+        <section ref={paidRef} style={{ background:'white', padding:'56px 20px', borderTop:`3px solid ${plans.find(p=>p.id===plan)?.color||'#2563eb'}` }}>
+          <div style={{ maxWidth:640, margin:'0 auto' }}>
+            <div style={{ marginBottom:28 }}>
+              <div style={{ fontSize:11, fontWeight:700, color:'#6b7280', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:6 }}>{es?'Completa tu solicitud':'Complete your request'}</div>
+              <h2 className="serif" style={{ fontSize:26, color:'#111827', letterSpacing:'-0.02em' }}>{planLabel[plan]}</h2>
+            </div>
+
+            <form onSubmit={submitPaid} style={{ display:'flex', flexDirection:'column', gap:18 }}>
+
+              {/* Datos básicos */}
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+                {field(es?'Nombre completo *':'Full name *','nombre','text',true,es?'Juan Pérez':'John Smith')}
+                {field('Email *','email','email',true,es?'tu@email.com':'you@email.com')}
+              </div>
+              {field(es?'Teléfono':'Phone','telefono','tel',false,es?'+593 99 123 4567':'+1 555 123 4567')}
+
+              {/* ¿Tiene CV? solo para no-basico */}
+              {!isBasico && (
+                <div>
+                  <label style={{ display:'block', fontSize:11, fontWeight:700, color:'#6b7280', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:8 }}>{es?'¿Tienes CV actual?':'Do you have a resume?'}</label>
+                  <div style={{ display:'flex', gap:10 }}>
+                    {[{v:'si',l:es?'Sí, tengo CV':'Yes'},{v:'no',l:es?'No, necesito crearlo':'No, create from scratch'}].map(o=>(
+                      <label key={o.v} style={{ flex:1, display:'flex', alignItems:'center', gap:8, padding:'11px 14px', border:`1.5px solid ${paid.tieneCV===o.v?'#2563eb':'#e5e7eb'}`, borderRadius:10, cursor:'pointer', fontSize:13, fontWeight:500, background:paid.tieneCV===o.v?'#eff6ff':'white' }}>
+                        <input type="radio" name="tieneCV" value={o.v} checked={paid.tieneCV===o.v} onChange={e=>setPaid(p=>({...p,tieneCV:e.target.value,cvFile:null}))} />
+                        {o.l}
+                      </label>
+                    ))}
+                  </div>
                 </div>
               )}
 
-              {/* BOTÓN */}
-              <button
-                type="submit"
-                disabled={isSubmitting || !aceptaTerminos || !aceptaLimitaciones}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed text-lg">
-                {isSubmitting
-                  ? <span className="flex items-center justify-center gap-2">
-                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      {t[language].form.processing}
-                    </span>
-                  : `${t[language].form.submit} — ${getPrice()}`}
+              {/* Upload CV */}
+              {paid.tieneCV==='si' && !isBasico && uploadBox(es?'Sube tu CV (PDF) *':'Upload resume (PDF) *','cvFile')}
+
+              {/* Upload LinkedIn */}
+              {isPremium && (
+                <div>
+                  <div style={{ background:'#faf5ff', border:'1px solid #ddd6fe', borderRadius:10, padding:'12px 14px', marginBottom:10 }}>
+                    <p style={{ fontSize:12, fontWeight:600, color:'#6d28d9', margin:'0 0 6px' }}>📱 {es?'Cómo descargar tu LinkedIn:':'How to download your LinkedIn:'}</p>
+                    <ol style={{ fontSize:12, color:'#64748b', paddingLeft:16, margin:0, lineHeight:1.8 }}>
+                      {(es
+                        ?['Abre LinkedIn en tu navegador','Ve a tu perfil → click en "Más"','Selecciona "Guardar en PDF"','Sube el archivo aquí ⬇️']
+                        :['Open LinkedIn in your browser','Go to your profile → click "More"','Select "Save to PDF"','Upload the file here ⬇️']
+                      ).map((s,i)=><li key={i}>{s}</li>)}
+                    </ol>
+                  </div>
+                  {uploadBox(es?'LinkedIn PDF *':'LinkedIn PDF *','linkedinFile',true,true)}
+                </div>
+              )}
+
+              {/* Tipo CV */}
+              {showTipoCV && (
+                <div>
+                  <label style={{ display:'block', fontSize:11, fontWeight:700, color:'#6b7280', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:8 }}>{es?'¿Para qué postulación?':'What type of application?'}</label>
+                  <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                    {[
+                      {v:'especifico',l:es?'Para un puesto específico':'For a specific position',d:es?'CV + análisis de compatibilidad + carta personalizada':'Resume + compatibility analysis + personalized cover letter'},
+                      {v:'general',   l:es?'General (mejorado)':'General (improved)',          d:es?'CV optimizado para múltiples posiciones':'Optimized resume for multiple positions'},
+                    ].map(o=>(
+                      <label key={o.v} style={{ display:'flex', alignItems:'flex-start', gap:10, padding:'13px 15px', border:`1.5px solid ${paid.tipoCV===o.v?'#2563eb':'#e5e7eb'}`, borderRadius:10, cursor:'pointer', background:paid.tipoCV===o.v?'#eff6ff':'white' }}>
+                        <input required type="radio" name="tipoCV" value={o.v} checked={paid.tipoCV===o.v} onChange={e=>setPaid(p=>({...p,tipoCV:e.target.value}))} style={{ marginTop:2 }} />
+                        <div>
+                          <div style={{ fontSize:14, fontWeight:600, color:'#111827' }}>{o.l}</div>
+                          <div style={{ fontSize:12, color:'#6b7280', marginTop:2 }}>{o.d}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Puesto + requisitos */}
+              {showPuesto && (
+                <div style={{ background:'#f0f9ff', border:'1px solid #bae6fd', borderRadius:12, padding:20, display:'flex', flexDirection:'column', gap:12 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'#0369a1', textTransform:'uppercase', letterSpacing:'0.06em' }}>📌 {es?'Información del puesto':'Position info'}</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+                    {[
+                      {key:'puesto',    label:es?'Puesto *':'Position *',   placeholder:es?'ej: Gerente de Ventas':'ex: Sales Manager',  req:true},
+                      {key:'industria', label:es?'Industria *':'Industry *', placeholder:es?'ej: Telecomunicaciones':'ex: Telecom',        req:true},
+                      {key:'empresa',   label:es?'Empresa (opcional)':'Company (optional)', placeholder:'ej: Claro',                       req:false},
+                      {key:'linkOferta',label:es?'Link oferta (opcional)':'Job link (optional)', placeholder:'https://...',               req:false, type:'url'},
+                    ].map(f=>(
+                      <div key={f.key}>
+                        <label style={{ display:'block', fontSize:11, fontWeight:600, color:'#0369a1', marginBottom:4 }}>{f.label}</label>
+                        <input required={f.req} type={f.type||'text'} value={paid[f.key]} placeholder={f.placeholder}
+                          onChange={e=>setPaid(p=>({...p,[f.key]:e.target.value}))}
+                          style={{ width:'100%', padding:'10px 12px', border:'1.5px solid #bae6fd', borderRadius:8, fontSize:13, background:'white', boxSizing:'border-box' }} />
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <label style={{ display:'block', fontSize:11, fontWeight:600, color:'#0369a1', marginBottom:4 }}>{es?'Requisitos del puesto *':'Job requirements *'}</label>
+                    <div style={{ background:'#fef3c7', border:'1px solid #fde68a', borderRadius:8, padding:'9px 12px', marginBottom:8, fontSize:12, color:'#92400e' }}>
+                      📋 {es?'Pega aquí la descripción — activa el análisis de compatibilidad y la carta personalizada.':'Paste the job description — activates compatibility analysis and personalized cover letter.'}
+                    </div>
+                    <textarea required value={paid.requisitosOferta} onChange={onReq} rows={6}
+                      placeholder={es?'Copia los requisitos, responsabilidades y skills de la oferta...':'Copy the requirements, responsibilities and skills from the job posting...'}
+                      style={{ width:'100%', padding:'10px 12px', border:'1.5px solid #bae6fd', borderRadius:8, fontSize:13, background:'white', resize:'vertical', boxSizing:'border-box', fontFamily:'inherit' }} />
+                    <div style={{ fontSize:11, color:'#6b7280', marginTop:3 }}>{es?'Palabras:':'Words:'} {reqWords}</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Info adicional / desde cero */}
+              {paid.tipoRevision && (
+                <div>
+                  <label style={{ display:'block', fontSize:11, fontWeight:700, color:'#6b7280', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:6 }}>
+                    {paid.tieneCV==='no'
+                      ? (es?'Tu experiencia profesional (max 1000 palabras) *':'Your professional experience (max 1000 words) *')
+                      : (es?'Información adicional (max 500 palabras)':'Additional information (max 500 words)')}
+                  </label>
+                  <div style={{ background:paid.tieneCV==='no'?'#f0fdf4':'#f8fafc', border:`1px solid ${paid.tieneCV==='no'?'#bbf7d0':'#e5e7eb'}`, borderRadius:8, padding:'9px 12px', marginBottom:8, fontSize:12, color:paid.tieneCV==='no'?'#065f46':'#6b7280' }}>
+                    {paid.tieneCV==='no'
+                      ? (es?'📝 Incluye: empresas donde trabajaste, puestos, fechas, logros, estudios y habilidades. Sé lo más detallado posible.':'📝 Include: companies, positions, dates, achievements, education and skills. Be as detailed as possible.')
+                      : (es?'💡 Agrega logros recientes, proyectos o habilidades que no están en tu CV.':'💡 Add recent achievements, projects or skills not in your resume.')}
+                  </div>
+                  <textarea value={paid.infoAdicional} onChange={onInfo}
+                    rows={paid.tieneCV==='no'?10:5}
+                    required={paid.tieneCV==='no'}
+                    placeholder={paid.tieneCV==='no'
+                      ?(es?'Ejemplo:\n\nEXPERIENCIA:\n- Gerente de Ventas en Empresa ABC (2020-2024)\n  • Lideré equipo de 8 personas\n  • Aumenté ventas en 35%\n\nFORMACIÓN:\n- Ingeniería Comercial, ESPOL, 2016\n\nHABILIDADES:\n- Excel, Salesforce, Inglés B2':'Example:\n\nEXPERIENCE:\n- Sales Manager, ABC Corp (2020-2024)\n  • Led team of 8\n  • Increased sales 35%\n\nEDUCATION:\n- Business Eng, 2016\n\nSKILLS:\n- Excel, Salesforce, English C1')
+                      :(es?'Ejemplo: Actualmente lidero equipo de 12 personas, aumenté ventas B2B en 38% en Q1 2026...':'Example: Currently leading team of 12, increased B2B sales by 38% in Q1 2026...')}
+                    style={{ width:'100%', padding:'11px 14px', border:'1.5px solid #e5e7eb', borderRadius:10, fontSize:13, resize:'vertical', fontFamily:'inherit', boxSizing:'border-box' }} />
+                  <div style={{ fontSize:11, color:'#9ca3af', marginTop:3 }}>{es?'Palabras:':'Words:'} {infoWords}/{paid.tieneCV==='no'?1000:500}</div>
+                </div>
+              )}
+
+              {checks(paidLimits, setPaidLimits, paidTerms, setPaidTerms)}
+              {statusBox(paidOk)}
+
+              <button type="submit" className="btn-primary" disabled={paidSending||!paidTerms||!paidLimits}>
+                {paidSending?(es?'Enviando...':'Sending...'):`${es?'Solicitar':'Request'} ${planLabel[plan]}`}
               </button>
 
-              {/* TEXTO LEGAL PIE */}
-              <p className="text-xs text-slate-400 text-center leading-relaxed px-2">
-                {t[language].form.legalNote}
+              <p style={{ fontSize:11, color:'#9ca3af', textAlign:'center', margin:0 }}>
+                {es?'Recibirás el link de pago en tu email en las próximas horas.':'You\'ll receive the payment link in your email within the next few hours.'}
               </p>
-
-            </div>
-          </form>
-        </div>
-
-        {/* FEATURES */}
-        <div className="grid md:grid-cols-3 gap-6 mt-16">
-          <div className="text-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h3 className="font-semibold text-slate-900 mb-2">{t[language].features.ats}</h3>
-            <p className="text-sm text-slate-600">{t[language].features.atsDesc}</p>
+            </form>
           </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-            <h3 className="font-semibold text-slate-900 mb-2">{t[language].features.compatibility}</h3>
-            <p className="text-sm text-slate-600">{t[language].features.compatibilityDesc}</p>
-          </div>
-          <div className="text-center">
-            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h3 className="font-semibold text-slate-900 mb-2">{t[language].features.coverLetter}</h3>
-            <p className="text-sm text-slate-600">{t[language].features.coverLetterDesc}</p>
+        </section>
+      )}
+
+      {/* ── HOW IT WORKS ───────────────────────────────────────────────────── */}
+      <section style={{ background:'#0f172a', padding:'64px 20px' }}>
+        <div style={{ maxWidth:760, margin:'0 auto', textAlign:'center' }}>
+          <h2 className="serif" style={{ fontSize:'clamp(24px,4vw,36px)', color:'white', margin:'0 0 40px', letterSpacing:'-0.02em' }}>
+            {es?'Simple, rápido, profesional':'Simple, fast, professional'}
+          </h2>
+          <div className="steps-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:24 }}>
+            {(es
+              ?[{n:'01',t:'Sube tu CV',d:'Gratis o elige un servicio. Menos de 2 minutos.'},{n:'02',t:'IA analiza tu perfil',d:'Claude lee tu CV real y genera un diagnóstico personalizado.'},{n:'03',t:'Recibe el resultado',d:'En tu email. Análisis, CV optimizado, carta y más.'}]
+              :[{n:'01',t:'Upload your resume',d:'Free or choose a service. Less than 2 minutes.'},{n:'02',t:'AI analyzes your profile',d:'Claude reads your real resume and generates a personalized diagnosis.'},{n:'03',t:'Receive the result',d:'In your email. Analysis, optimized resume, cover letter and more.'}]
+            ).map((s,i)=>(
+              <div key={i}>
+                <div className="serif" style={{ fontSize:32, color:'rgba(59,130,246,0.3)', marginBottom:10 }}>{s.n}</div>
+                <h3 style={{ fontSize:15, fontWeight:700, color:'white', margin:'0 0 8px' }}>{s.t}</h3>
+                <p style={{ fontSize:13, color:'rgba(255,255,255,0.45)', margin:0, lineHeight:1.6 }}>{s.d}</p>
+              </div>
+            ))}
           </div>
         </div>
-
       </section>
 
-      {/* FOOTER */}
-      <footer className="border-t border-slate-200 bg-white mt-16">
-        <div className="max-w-5xl mx-auto px-6 py-8">
-          <div className="text-center text-sm text-slate-600">
-            <p>{t[language].footer.rights}</p>
-            <p className="mt-2">
-              {t[language].footer.contact}{' '}
-              <a href="mailto:jrgarcia@nocodia.net" className="text-blue-600 hover:text-blue-700 font-medium">jrgarcia@nocodia.net</a>
-              {' · '}
-              <a href="/politica-privacidad.html" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700">
-                {t[language].footer.privacy}
-              </a>
-            </p>
-            <p className="mt-2 text-xs text-slate-400">
-              {language === 'es'
-                ? 'Cumple con la Ley Orgánica de Protección de Datos Personales del Ecuador (LOPDP, R.O. 459 — 26/05/2021)'
-                : 'Compliant with Ecuador\'s Organic Law on Personal Data Protection (LOPDP, R.O. 459 — 26/05/2021)'}
-            </p>
+      {/* ── FINAL CTA ──────────────────────────────────────────────────────── */}
+      <section style={{ background:'linear-gradient(135deg,#1d4ed8,#4f46e5)', padding:'60px 20px', textAlign:'center' }}>
+        <h2 className="serif" style={{ fontSize:'clamp(24px,4vw,36px)', color:'white', margin:'0 0 12px', letterSpacing:'-0.02em' }}>
+          {es?'Empieza gratis hoy':'Start free today'}
+        </h2>
+        <p style={{ fontSize:15, color:'rgba(255,255,255,0.75)', margin:'0 0 24px' }}>
+          {es?'Descubre qué está frenando tus oportunidades — en minutos.':'Find out what\'s holding back your opportunities — in minutes.'}
+        </p>
+        <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}
+          style={{ padding:'13px 32px', borderRadius:12, border:'2px solid white', background:'white', color:'#1d4ed8', fontSize:15, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>
+          {es?'Analizar mi CV gratis ↑':'Analyze my resume free ↑'}
+        </button>
+      </section>
+
+      {/* ── FOOTER ─────────────────────────────────────────────────────────── */}
+      <footer style={{ background:'#080d18', padding:'28px 20px' }}>
+        <div style={{ maxWidth:1080, margin:'0 auto', display:'flex', flexWrap:'wrap', justifyContent:'space-between', alignItems:'center', gap:12 }}>
+          <span style={{ fontSize:12, color:'rgba(255,255,255,0.3)' }}>© 2026 Nocodia CV · Guayaquil, Ecuador</span>
+          <div style={{ display:'flex', gap:16, flexWrap:'wrap' }}>
+            <a href="/politica-privacidad.html" target="_blank" rel="noopener noreferrer" style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none' }}>{es?'Política de Privacidad':'Privacy Policy'}</a>
+            <a href="mailto:jrgarcia@nocodia.net" style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none' }}>jrgarcia@nocodia.net</a>
           </div>
         </div>
+        <p style={{ fontSize:10, color:'rgba(255,255,255,0.18)', textAlign:'center', maxWidth:700, margin:'16px auto 0', lineHeight:1.6 }}>
+          {es
+            ?'Nocodia CV cumple con la Ley Orgánica de Protección de Datos Personales del Ecuador (LOPDP, R.O. 459 — 26/05/2021). El servicio no garantiza resultados laborales específicos.'
+            :"Nocodia CV complies with Ecuador's Organic Law on Personal Data Protection (LOPDP). The service does not guarantee specific employment results."}
+        </p>
       </footer>
-
-    </div>
+    </>
   );
 }
