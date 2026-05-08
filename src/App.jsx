@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Upload, CheckCircle, AlertCircle, ChevronDown } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle } from 'lucide-react';
 
 /* ─── ESTILOS GLOBALES ───────────────────────────────────────────────────── */
 const G = () => (
@@ -30,21 +30,17 @@ const G = () => (
     input, textarea, button, select { font-family: inherit; }
     a { color: var(--blue); }
 
-    /* ── Utilidades ─────────────────────────────────────────────── */
     .container { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
 
-    /* ── Animaciones ────────────────────────────────────────────── */
     @keyframes up   { from { opacity:0; transform:translateY(24px) } to { opacity:1; transform:translateY(0) } }
-    @keyframes pop  { 0%{transform:scale(.94)} 60%{transform:scale(1.02)} 100%{transform:scale(1)} }
-    @keyframes dash { from{stroke-dashoffset:220} to{stroke-dashoffset:60} }
 
-    .anim-up     { animation: up .55s ease both }
-    .d1{animation-delay:.08s}.d2{animation-delay:.18s}.d3{animation-delay:.28s}.d4{animation-delay:.38s}
+    .anim-up { animation: up .55s ease both }
+    .d1{animation-delay:.08s}.d2{animation-delay:.18s}.d3{animation-delay:.28s}
 
-    /* ── Hero ───────────────────────────────────────────────────── */
+    /* ── Hero ─────────────────────────────────────────── */
     .hero {
       background: var(--ink);
-      padding: 56px 0 64px;
+      padding: 40px 0 52px;
       position: relative;
       overflow: hidden;
     }
@@ -57,18 +53,17 @@ const G = () => (
         radial-gradient(ellipse 50% 60% at 80% 30%, rgba(220,38,38,.08) 0%, transparent 60%);
       pointer-events: none;
     }
-
     .hero-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 40px;
+      gap: 36px;
       position: relative;
     }
     @media(min-width:860px) {
       .hero-grid { grid-template-columns: 1fr 420px; gap: 48px; align-items: start; }
     }
 
-    /* ── Formulario ─────────────────────────────────────────────── */
+    /* ── Formulario ─────────────────────────────────── */
     .form-card {
       background: var(--white);
       border-radius: var(--rL);
@@ -96,7 +91,7 @@ const G = () => (
     }
     .field-input:focus { outline: none; border-color: var(--blue); }
 
-    /* ── Upload ─────────────────────────────────────────────────── */
+    /* ── Upload ───────────────────────────────────── */
     .upload-wrap {
       display: block;
       width: 100%;
@@ -111,12 +106,12 @@ const G = () => (
     .upload-wrap:hover            { border-color: var(--blue); background: #eff6ff; }
     .upload-wrap.has-file         { border-color: var(--green); background: #f0fdf4; }
 
-    /* ── Checks ─────────────────────────────────────────────────── */
+    /* ── Checks ──────────────────────────────────── */
     .check-row { display: flex; gap: 8px; align-items: flex-start; cursor: pointer; }
     .check-row input[type=checkbox] { margin-top: 2px; flex-shrink: 0; accent-color: var(--blue); }
     .check-row span { font-size: 11px; color: var(--slate); line-height: 1.5; }
 
-    /* ── Botón primario ─────────────────────────────────────────── */
+    /* ── Botón ───────────────────────────────────── */
     .btn {
       display: block;
       width: 100%;
@@ -132,9 +127,8 @@ const G = () => (
     .btn-blue { background: linear-gradient(135deg, var(--blue), #4f46e5); color: white; }
     .btn-blue:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(29,78,216,.35); }
     .btn-blue:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-    .btn-outline { background: transparent; border: 1.5px solid currentColor; }
 
-    /* ── Prueba social ──────────────────────────────────────────── */
+    /* ── Prueba social ────────────────────────── */
     .proof-strip {
       background: var(--white);
       border-top: 1px solid var(--border);
@@ -151,7 +145,7 @@ const G = () => (
     .proof-num { font-family: 'Bricolage Grotesque', sans-serif; font-size: 20px; font-weight: 800; color: var(--ink); }
     .proof-label { font-size: 11px; color: var(--slate); margin-top: 2px; }
 
-    /* ── Email mockup ───────────────────────────────────────────── */
+    /* ── Email mockup ─────────────────────────── */
     .mockup {
       background: var(--white);
       border-radius: 14px;
@@ -170,14 +164,27 @@ const G = () => (
     .mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
     .mockup-body { padding: 20px; }
 
-    /* ── Planes ─────────────────────────────────────────────────── */
+    /* ── Antes/Después ────────────────────────── */
+    .before-after-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 32px rgba(0,0,0,.08);
+    }
+    .ba-col { padding: 24px; }
+    .ba-before { background: #fff5f5; border-right: 1px solid var(--border); }
+    .ba-after  { background: #f0fdf4; }
+
+    /* ── Planes ───────────────────────────────── */
     .plans-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 16px;
     }
     @media(min-width:680px) { .plans-grid { grid-template-columns: repeat(3, 1fr); } }
-
     .plan {
       background: var(--white);
       border: 2px solid var(--border);
@@ -190,7 +197,7 @@ const G = () => (
     .plan:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,.09); }
     .plan.on    { box-shadow: 0 0 0 3px rgba(29,78,216,.2); }
 
-    /* ── Pasos ──────────────────────────────────────────────────── */
+    /* ── Pasos ────────────────────────────────── */
     .steps-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -198,19 +205,19 @@ const G = () => (
     }
     @media(min-width:680px) { .steps-grid { grid-template-columns: repeat(3, 1fr); } }
 
-    /* ── Status box ─────────────────────────────────────────────── */
+    /* ── Status ───────────────────────────────── */
     .status { display: flex; gap: 8px; align-items: flex-start; padding: 11px 14px; border-radius: var(--r); font-size: 13px; }
     .status.ok  { background: #f0fdf4; border: 1px solid #bbf7d0; color: #065f46; }
     .status.err { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
 
-    /* ── Formulario pagado ──────────────────────────────────────── */
+    /* ── Formulario pagado ────────────────────── */
     .paid-section {
       background: var(--white);
       border-top: 3px solid var(--blue);
       padding: 56px 0;
     }
 
-    /* ── Secciones ──────────────────────────────────────────────── */
+    /* ── Secciones ────────────────────────────── */
     .section      { padding: 64px 0; }
     .section-dark { background: var(--ink2); padding: 64px 0; }
     .section-bg   { background: var(--bg);  padding: 64px 0; }
@@ -225,29 +232,57 @@ const G = () => (
       padding: 4px 12px;
       margin-bottom: 14px;
     }
-    .tag-red  { background: #fef2f2; color: #991b1b; }
-    .tag-blue { background: #eff6ff; color: #1e40af; }
-    .tag-gold { background: #fef3c7; color: #92400e; }
-    .tag-green{ background: #f0fdf4; color: #065f46; }
-    .tag-dark { background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); }
+    .tag-red   { background: #fef2f2; color: #991b1b; }
+    .tag-blue  { background: #eff6ff; color: #1e40af; }
+    .tag-gold  { background: #fef3c7; color: #92400e; }
+    .tag-green { background: #f0fdf4; color: #065f46; }
+    .tag-dark  { background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); }
 
     .section-h { font-size: clamp(24px, 4vw, 36px); letter-spacing: -.025em; }
 
-    /* ── Tension bullets (hero) ─────────────────────────────────── */
-    .tension-list { display: flex; flex-direction: column; gap: 10px; }
-    .tension-item { display: flex; align-items: flex-start; gap: 10px; }
+    /* ── Tension bullets ──────────────────────── */
+    .tension-list { display: flex; flex-direction: column; gap: 8px; }
+    .tension-item { display: flex; align-items: center; gap: 10px; }
     .tension-icon {
       width: 20px; height: 20px; border-radius: 50%;
       background: rgba(220,38,38,.15);
       border: 1px solid rgba(220,38,38,.3);
       display: flex; align-items: center; justify-content: center;
-      font-size: 10px; flex-shrink: 0; margin-top: 1px;
+      font-size: 10px; flex-shrink: 0;
     }
 
-    /* ── Footer ─────────────────────────────────────────────────── */
-    footer { background: #080d18; padding: 28px 0; }
+    /* ── Header badge ─────────────────────────── */
+    .header-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 8px;
+      transition: background .15s;
+      font-family: inherit;
+      text-align: right;
+    }
+    .header-badge:hover { background: #fef2f2; }
+    .header-badge-line1 { font-size: 10px; font-weight: 600; color: var(--red); letter-spacing: .02em; line-height: 1.2; }
+    .header-badge-line2 { font-size: 11px; font-weight: 700; color: var(--ink); letter-spacing: -.01em; line-height: 1.2; }
+    @media(max-width:400px) { .header-badge { display: none; } }
 
-    /* ── Responsive radio ───────────────────────────────────────── */
+    /* ── Micro-confianza ─────────────────────── */
+    .micro-trust {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .micro-trust span { display: flex; align-items: center; gap: 4px; }
+
+    /* ── Radio ────────────────────────────────── */
     .radio-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -272,6 +307,9 @@ const G = () => (
       padding: 14px;
       margin-bottom: 10px;
     }
+
+    /* ── Footer ───────────────────────────────── */
+    footer { background: #080d18; padding: 28px 0; }
   `}</style>
 );
 
@@ -292,14 +330,11 @@ const EmailMockup = ({ es }) => (
         <span style={{ fontSize:12, fontWeight:700, color:'#1d4ed8' }}>Nocodia CV</span>
         <span style={{ fontSize:11, color:'#9ca3af' }}>· {es?'Diagnóstico IA':'AI Diagnosis'}</span>
       </div>
-
       <p style={{ fontSize:13, color:'#374151', lineHeight:1.6, marginBottom:16 }}>
         {es
           ?'Analizamos tu CV. Encontramos 3 problemas críticos que están reduciendo tus posibilidades de entrevista.'
           :'We analyzed your resume. Found 3 critical issues reducing your interview chances.'}
       </p>
-
-      {/* Errores */}
       <div style={{ marginBottom:14 }}>
         <p style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'#374151', marginBottom:8 }}>
           ⚠️ {es?'Errores críticos detectados':'Critical issues detected'}
@@ -315,8 +350,6 @@ const EmailMockup = ({ es }) => (
           </div>
         ))}
       </div>
-
-      {/* Fortalezas */}
       <div style={{ marginBottom:16 }}>
         <p style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'.06em', color:'#374151', marginBottom:8 }}>
           💪 {es?'Lo que está funcionando':'What is working'}
@@ -331,8 +364,6 @@ const EmailMockup = ({ es }) => (
           </div>
         ))}
       </div>
-
-      {/* CTA upsell */}
       <div style={{ background:'linear-gradient(135deg,#eff6ff,#eef2ff)', borderRadius:10, padding:'12px 14px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <span style={{ fontSize:12, color:'#1e40af', fontWeight:600 }}>
           {es?'¿Quieres el CV completamente optimizado?':'Want the fully optimized resume?'}
@@ -343,20 +374,80 @@ const EmailMockup = ({ es }) => (
   </div>
 );
 
+/* ─── BLOQUE ANTES / DESPUÉS ─────────────────────────────────────────────── */
+const BeforeAfter = ({ es }) => {
+  const before = es
+    ? [
+        { icon:'📄', t:'Score ATS: 38/100' },
+        { icon:'❌', t:'Perfil genérico sin valor diferencial' },
+        { icon:'❌', t:'Keywords del sector ausentes' },
+        { icon:'❌', t:'Logros sin cuantificar' },
+        { icon:'📭', t:'0 respuestas en 3 meses' },
+      ]
+    : [
+        { icon:'📄', t:'ATS Score: 38/100' },
+        { icon:'❌', t:'Generic profile with no clear value' },
+        { icon:'❌', t:'Missing sector keywords' },
+        { icon:'❌', t:'Achievements not quantified' },
+        { icon:'📭', t:'0 responses in 3 months' },
+      ];
+
+  const after = es
+    ? [
+        { icon:'📄', t:'Score ATS: 91/100' },
+        { icon:'✅', t:'Propuesta de valor clara y diferenciada' },
+        { icon:'✅', t:'12 keywords ATS integradas' },
+        { icon:'✅', t:'Logros con impacto y números reales' },
+        { icon:'📬', t:'Entrevista a los 5 días' },
+      ]
+    : [
+        { icon:'📄', t:'ATS Score: 91/100' },
+        { icon:'✅', t:'Clear, differentiated value proposition' },
+        { icon:'✅', t:'12 ATS keywords integrated' },
+        { icon:'✅', t:'Quantified achievements with real impact' },
+        { icon:'📬', t:'Interview in 5 days' },
+      ];
+
+  return (
+    <div className="before-after-grid">
+      <div className="ba-col ba-before">
+        <p style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#ef4444', marginBottom:14 }}>
+          {es?'ANTES — CV sin optimizar':'BEFORE — Unoptimized resume'}
+        </p>
+        {before.map((item,i) => (
+          <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:8, marginBottom:10 }}>
+            <span style={{ fontSize:13, flexShrink:0 }}>{item.icon}</span>
+            <span style={{ fontSize:13, color:'#6b7280', lineHeight:1.4 }}>{item.t}</span>
+          </div>
+        ))}
+      </div>
+      <div className="ba-col ba-after">
+        <p style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'.07em', color:'#059669', marginBottom:14 }}>
+          {es?'DESPUÉS — CV Nocodia':'AFTER — Nocodia resume'}
+        </p>
+        {after.map((item,i) => (
+          <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:8, marginBottom:10 }}>
+            <span style={{ fontSize:13, flexShrink:0 }}>{item.icon}</span>
+            <span style={{ fontSize:13, color:'#374151', fontWeight: i===4?700:400, lineHeight:1.4 }}>{item.t}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 /* ─── COMPONENTE PRINCIPAL ──────────────────────────────────────────────── */
 export default function App() {
   const [lang, setLang]         = useState('es');
   const plansRef = useRef(null);
   const paidRef  = useRef(null);
 
-  /* Free form */
   const [free, setFree]         = useState({ nombre:'', email:'', cvFile:null });
   const [freeOk, setFreeOk]     = useState(null);
   const [freeBusy, setFreeBusy] = useState(false);
   const [freeLim, setFreeLim]   = useState(false);
   const [freeTerm, setFreeTerm] = useState(false);
 
-  /* Paid form */
   const [plan, setPlan]         = useState(null);
   const [paid, setPaid]         = useState({
     nombre:'', email:'', telefono:'', tieneCV:'si', tipoRevision:'',
@@ -372,7 +463,7 @@ export default function App() {
 
   const es = lang === 'es';
 
-  /* ── Submit gratis ────────────────────────────────────────────── */
+  /* ── Submit gratis ──────────────────────────────── */
   const submitFree = async e => {
     e.preventDefault();
     setFreeBusy(true); setFreeOk(null);
@@ -389,10 +480,10 @@ export default function App() {
       setFreeOk(r.ok?{ok:true,msg:j.message}:{ok:false,msg:j.error});
       if(r.ok){ setFree({nombre:'',email:'',cvFile:null}); setFreeLim(false); setFreeTerm(false); }
     } catch { setFreeOk({ok:false,msg:'Error de conexión.'}); }
-    finally   { setFreeBusy(false); }
+    finally  { setFreeBusy(false); }
   };
 
-  /* ── Submit pagado ────────────────────────────────────────────── */
+  /* ── Submit pagado ──────────────────────────────── */
   const submitPaid = async e => {
     e.preventDefault();
     setPaidBusy(true); setPaidOk(null);
@@ -405,7 +496,7 @@ export default function App() {
       setPaidOk(r.ok?{ok:true,msg:j.message}:{ok:false,msg:j.error});
       if(r.ok){ setPaid({nombre:'',email:'',telefono:'',tieneCV:'si',tipoRevision:plan,tipoCV:'',puesto:'',empresa:'',industria:'',linkOferta:'',requisitosOferta:'',infoAdicional:'',cvFile:null,linkedinFile:null}); setIWords(0); setRWords(0); setPaidLim(false); setPaidTerm(false); }
     } catch { setPaidOk({ok:false,msg:'Error de conexión.'}); }
-    finally   { setPaidBusy(false); }
+    finally  { setPaidBusy(false); }
   };
 
   const pickPlan = id => {
@@ -426,31 +517,31 @@ export default function App() {
     setRWords(t.trim().split(/\s+/).filter(Boolean).length);
   };
 
-  /* ── Planes ───────────────────────────────────────────────────── */
+  /* ── Planes ──────────────────────────────────────── */
   const plans = [
     { id:'especializada', color:'#4f46e5',
       price:'$12', badge:null,
       title: es?'Especializada':'Specialized',
       sub:   es?'Para una vacante real':'For a specific job posting',
       items: es
-        ?['CV reescrito y optimizado ATS','Análisis de compatibilidad con la oferta','Carta de presentación personalizada']
-        :['Rewritten ATS-optimized resume','Compatibility analysis with the job','Personalized cover letter'],
+        ?['Tu CV listo para pasar filtros ATS','Análisis de compatibilidad con la oferta','Carta de presentación personalizada']
+        :['Resume ready to pass ATS filters','Compatibility analysis with the job','Personalized cover letter'],
     },
     { id:'basico', color:'#7c3aed',
       price:'$15', badge:null,
       title: es?'Básico':'Basic',
       sub:   es?'CV desde cero':'Resume from scratch',
       items: es
-        ?['CV profesional completo','Redactado con tu experiencia','Formato ATS optimizado']
-        :['Complete professional resume','Written with your experience','ATS-optimized format'],
+        ?['Tu CV profesional completo, listo para postular','Redactado con tu experiencia real','Formato ATS optimizado para reclutadores']
+        :['Complete professional resume, ready to apply','Written with your real experience','ATS-optimized format for recruiters'],
     },
     { id:'premium', color:'#1d4ed8',
       price:'$20', badge: es?'⭐ RECOMENDADO':'⭐ RECOMMENDED',
       title: es?'Postulación Ejecutiva':'Executive Application',
-      sub:   es?'Bilingüe · Completo':'Bilingual · Complete',
+      sub:   es?'Máxima ventaja · Bilingüe':'Maximum advantage · Bilingual',
       items: es
-        ?['Todo lo de Especializada','CV + Carta en Español e Inglés','LinkedIn PDF analizado + optimización completa']
-        :['Everything in Specialized','Resume + Cover letter in Spanish & English','LinkedIn PDF analyzed + full optimization'],
+        ?['CV + carta en Español e Inglés','LinkedIn PDF analizado + optimización completa','Análisis de compatibilidad con la oferta']
+        :['Resume + cover letter in Spanish & English','LinkedIn PDF analyzed + full optimization','Compatibility analysis with the job posting'],
     },
   ];
 
@@ -460,8 +551,10 @@ export default function App() {
   const showPuesto= paid.tipoCV==='especifico';
   const pLabel    = { especializada:es?'Especializada $12':'Specialized $12', basico:es?'Básico $15':'Basic $15', premium:es?'Postulación Ejecutiva $20':'Executive Application $20' };
 
-  /* ── Helpers UI ───────────────────────────────────────────────── */
-  const Lbl = ({t}) => <label className="field-label" style={{display:'block',fontSize:11,fontWeight:600,color:'#64748b',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6}}>{t}</label>;
+  /* ── Helpers ─────────────────────────────────────── */
+  const Lbl = ({t}) => (
+    <label className="field-label" style={{display:'block',fontSize:11,fontWeight:600,color:'#64748b',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:6}}>{t}</label>
+  );
 
   const UpBox = ({label,fileKey,req=true,purple=false}) => {
     const has = !!paid[fileKey];
@@ -502,68 +595,74 @@ export default function App() {
     </div>
   );
 
-  /* ── RENDER ─────────────────────────────────────────────────────────────── */
+  /* ── RENDER ──────────────────────────────────────────────────────────────── */
   return (
     <>
       <G/>
 
-      {/* ── HEADER ─────────────────────────────────────────────────────────── */}
+      {/* ── HEADER ──────────────────────────────────────────────────────────── */}
       <header style={{position:'sticky',top:0,zIndex:50,background:'rgba(255,255,255,.96)',backdropFilter:'blur(10px)',borderBottom:'1px solid var(--border)'}}>
-        <div className="container" style={{height:52,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <span style={{fontFamily:'Bricolage Grotesque,sans-serif',fontSize:17,fontWeight:800,letterSpacing:'-.02em',color:'var(--ink)'}}>Nocodia CV</span>
-          <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <div style={{display:'flex',gap:4}}>
+        <div className="container" style={{height:52,display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
+          <span style={{fontFamily:'Bricolage Grotesque,sans-serif',fontSize:17,fontWeight:800,letterSpacing:'-.02em',color:'var(--ink)',flexShrink:0}}>Nocodia CV</span>
+
+          <div style={{display:'flex',alignItems:'center',gap:6}}>
+            {/* Badge planes */}
+            <button className="header-badge"
+              onClick={()=>plansRef.current?.scrollIntoView({behavior:'smooth',block:'start'})}>
+              <span className="header-badge-line1">
+                {es?'No pases desapercibido':'Don\'t go unnoticed'}
+              </span>
+              <span className="header-badge-line2">
+                {es?'Optimiza tu CV · desde $12 →':'Optimize your resume · from $12 →'}
+              </span>
+            </button>
+
+            {/* Selector idioma */}
+            <div style={{display:'flex',gap:4,flexShrink:0}}>
               {['es','en'].map(l=>(
                 <button key={l} onClick={()=>setLang(l)} style={{padding:'4px 10px',borderRadius:6,border:'none',cursor:'pointer',fontSize:12,fontWeight:600,fontFamily:'inherit',background:lang===l?'var(--blue)':'#f1f5f9',color:lang===l?'white':'#64748b',transition:'all .15s'}}>
                   {l==='es'?'🇪🇸 ES':'🇬🇧 EN'}
                 </button>
               ))}
             </div>
-            <a href="mailto:jrgarcia@nocodia.net" style={{fontSize:12,color:'#64748b',textDecoration:'none',display:'none'}} className="desk-only">jrgarcia@nocodia.net</a>
           </div>
         </div>
       </header>
 
-      {/* ── HERO ────────────────────────────────────────────────────────────── */}
+      {/* ── HERO ─────────────────────────────────────────────────────────────── */}
       <section className="hero">
         <div className="container">
           <div className="hero-grid">
 
-            {/* COPY */}
+            {/* COPY — compacto */}
             <div>
-              <div className="anim-up" style={{display:'inline-block',background:'rgba(220,38,38,.15)',border:'1px solid rgba(220,38,38,.25)',borderRadius:20,padding:'4px 12px',fontSize:11,fontWeight:700,color:'#fca5a5',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:18}}>
+              <div className="anim-up" style={{display:'inline-block',background:'rgba(220,38,38,.15)',border:'1px solid rgba(220,38,38,.25)',borderRadius:20,padding:'4px 12px',fontSize:11,fontWeight:700,color:'#fca5a5',textTransform:'uppercase',letterSpacing:'.08em',marginBottom:16}}>
                 {es?'Diagnóstico IA gratuito':'Free AI Diagnosis'}
               </div>
 
-              <h1 className="anim-up d1" style={{fontSize:'clamp(28px,5.5vw,52px)',color:'white',marginBottom:16,letterSpacing:'-.03em'}}>
+              <h1 className="anim-up d1" style={{fontSize:'clamp(28px,5.5vw,52px)',color:'white',marginBottom:12,letterSpacing:'-.03em'}}>
                 {es
                   ?<>Tu CV podría estar siendo<br/><span style={{color:'#f87171'}}>descartado antes de ser leído</span></>
                   :<>Your resume may be getting<br/><span style={{color:'#f87171'}}>rejected before it's even read</span></>}
               </h1>
 
-              <p className="anim-up d2" style={{fontSize:16,color:'rgba(255,255,255,.6)',marginBottom:24,maxWidth:480,lineHeight:1.7}}>
+              <p className="anim-up d2" style={{fontSize:15,color:'rgba(255,255,255,.55)',marginBottom:20,maxWidth:460,lineHeight:1.6}}>
                 {es
-                  ?'Muchas empresas usan filtros ATS automáticos. Errores pequeños pueden eliminarte del proceso sin que nadie lea tu CV.'
-                  :'Many companies use automatic ATS filters. Small mistakes can eliminate you before anyone reads your resume.'}
+                  ?'Muchas empresas usan filtros ATS automáticos.'
+                  :'Many companies use automatic ATS filters.'}
               </p>
 
-              <div className="tension-list anim-up d3" style={{marginBottom:32}}>
+              <div className="tension-list anim-up d3" style={{marginBottom:0}}>
                 {(es
-                  ?['Tu CV podría estar siendo filtrado automáticamente','Keywords faltantes te hacen invisible para los reclutadores','El formato equivocado descarta tu candidatura al instante']
-                  :['Your resume may be filtered out automatically','Missing keywords make you invisible to recruiters','Wrong format can disqualify your application instantly']
+                  ?['Tu CV filtrado sin que nadie lo lea','Keywords faltantes = invisible al reclutador','Formato incorrecto descarta candidatos']
+                  :['Filtered out before anyone reads it','Missing keywords = invisible to recruiters','Wrong format = instant disqualification']
                 ).map((t,i)=>(
                   <div className="tension-item" key={i}>
                     <div className="tension-icon">⚡</div>
-                    <span style={{fontSize:14,color:'rgba(255,255,255,.72)'}}>{t}</span>
+                    <span style={{fontSize:14,color:'rgba(255,255,255,.7)'}}>{t}</span>
                   </div>
                 ))}
               </div>
-
-              {/* Flecha a planes — desktop only */}
-              <button onClick={()=>plansRef.current?.scrollIntoView({behavior:'smooth'})}
-                style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',fontSize:13,color:'rgba(255,255,255,.38)',fontFamily:'inherit',padding:0}}>
-                <ChevronDown size={14}/>{es?'Ver servicios de optimización':'See optimization services'}
-              </button>
             </div>
 
             {/* FORMULARIO GRATIS */}
@@ -581,7 +680,6 @@ export default function App() {
 
                 <div style={{display:'flex',flexDirection:'column',gap:14}}>
 
-                  {/* Nombre */}
                   <div>
                     <Lbl t={es?'Tu nombre':'Your name'}/>
                     <input required type="text" className="field-input" value={free.nombre}
@@ -589,7 +687,6 @@ export default function App() {
                       onChange={e=>setFree(p=>({...p,nombre:e.target.value}))}/>
                   </div>
 
-                  {/* Email */}
                   <div>
                     <Lbl t="Email"/>
                     <input required type="email" className="field-input" value={free.email}
@@ -597,7 +694,6 @@ export default function App() {
                       onChange={e=>setFree(p=>({...p,email:e.target.value}))}/>
                   </div>
 
-                  {/* Upload */}
                   <div>
                     <Lbl t={es?'Sube tu CV (PDF)':'Upload resume (PDF)'}/>
                     <label className={`upload-wrap${free.cvFile?' has-file':''}`}>
@@ -618,9 +714,12 @@ export default function App() {
                     {freeBusy?(es?'Analizando...':'Analyzing...'):(es?'Recibir mi análisis gratis →':'Get my free analysis →')}
                   </button>
 
-                  <p style={{fontSize:11,color:'#94a3b8',textAlign:'center',margin:0}}>
-                    {es?'Sin costo · Entrega por email · 100% confidencial':'No cost · Email delivery · 100% confidential'}
-                  </p>
+                  {/* MICRO-CONFIANZA */}
+                  <div className="micro-trust">
+                    <span>✅ {es?'Confidencial':'Confidential'}</span>
+                    <span>✅ {es?'Por email':'By email'}</span>
+                    <span>✅ {es?'En minutos':'In minutes'}</span>
+                  </div>
                 </div>
               </form>
             </div>
@@ -629,7 +728,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── PRUEBA SOCIAL ───────────────────────────────────────────────────── */}
+      {/* ── PRUEBA SOCIAL ──────────────────────────────────────────────────── */}
       <div className="proof-strip">
         <div className="container">
           <div className="proof-grid">
@@ -648,7 +747,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── MOCKUP DEL EMAIL ─────────────────────────────────────────────────── */}
+      {/* ── MOCKUP DEL EMAIL ──────────────────────────────────────────────── */}
       <section className="section" style={{background:'white'}}>
         <div className="container">
           <div style={{textAlign:'center',marginBottom:32}}>
@@ -666,8 +765,32 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── PLANES ──────────────────────────────────────────────────────────── */}
-      <section className="section-bg" ref={plansRef}>
+      {/* ── ANTES / DESPUÉS ───────────────────────────────────────────────── */}
+      <section className="section-bg">
+        <div className="container">
+          <div style={{textAlign:'center',marginBottom:32}}>
+            <span className="section-tag tag-red">{es?'El impacto real':'The real impact'}</span>
+            <h2 className="section-h" style={{color:'var(--ink)',marginBottom:8}}>
+              {es?'La diferencia entre un CV ignorado y uno que genera entrevistas':'The difference between an ignored resume and one that gets interviews'}
+            </h2>
+            <p style={{fontSize:14,color:'#94a3b8',marginTop:8}}>
+              {es?'Ejemplo ilustrativo basado en casos reales':'Illustrative example based on real cases'}
+            </p>
+          </div>
+          <div style={{maxWidth:680,margin:'0 auto 28px'}}>
+            <BeforeAfter es={es}/>
+          </div>
+          <div style={{textAlign:'center'}}>
+            <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}
+              style={{padding:'12px 28px',borderRadius:12,border:'none',background:'linear-gradient(135deg,#dc2626,#b91c1c)',color:'white',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+              {es?'Analiza mi CV gratis ahora →':'Analyze my resume for free →'}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── PLANES ───────────────────────────────────────────────────────── */}
+      <section className="section" style={{background:'white'}} ref={plansRef}>
         <div className="container">
           <div style={{textAlign:'center',marginBottom:36}}>
             <span className="section-tag tag-gold">{es?'¿Quieres ir más allá?':'Want to go further?'}</span>
@@ -706,7 +829,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── FORMULARIO PAGADO ────────────────────────────────────────────────── */}
+      {/* ── FORMULARIO PAGADO ────────────────────────────────────────────── */}
       {plan&&(
         <section className="paid-section" ref={paidRef}
           style={{borderTopColor:plans.find(p=>p.id===plan)?.color||'var(--blue)'}}>
@@ -717,7 +840,6 @@ export default function App() {
 
               <form onSubmit={submitPaid} style={{display:'flex',flexDirection:'column',gap:18}}>
 
-                {/* Datos básicos */}
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
                   <div>
                     <Lbl t={es?'Nombre *':'Full name *'}/>
@@ -739,7 +861,6 @@ export default function App() {
                     onChange={e=>setPaid(p=>({...p,telefono:e.target.value}))}/>
                 </div>
 
-                {/* ¿Tienes CV? */}
                 {!isBasico&&(
                   <div>
                     <Lbl t={es?'¿Tienes CV actual?':'Do you have a resume?'}/>
@@ -755,12 +876,10 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Upload CV */}
                 {paid.tieneCV==='si'&&!isBasico&&(
                   <UpBox label={es?'Tu CV (PDF) *':'Resume (PDF) *'} fileKey="cvFile"/>
                 )}
 
-                {/* Upload LinkedIn */}
                 {isPremium&&(
                   <div>
                     <div className="linkedin-hint">
@@ -776,14 +895,13 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Tipo de CV */}
                 {showTC&&(
                   <div>
                     <Lbl t={es?'¿Para qué postulación?':'What type of application?'}/>
                     <div style={{display:'flex',flexDirection:'column',gap:8}}>
                       {[
                         {v:'especifico',l:es?'Para un puesto específico':'For a specific position',d:es?'CV + compatibilidad + carta personalizada':'Resume + compatibility + personalized cover letter'},
-                        {v:'general',   l:es?'General (mejorado)':'General (improved)',            d:es?'CV optimizado para múltiples posiciones':'Optimized for multiple positions'},
+                        {v:'general',   l:es?'General (mejorado)':'General (improved)',d:es?'CV optimizado para múltiples posiciones':'Optimized for multiple positions'},
                       ].map(o=>(
                         <label key={o.v} className={`radio-card${paid.tipoCV===o.v?' on':''}`} style={{flexDirection:'column',gap:4}}>
                           <div style={{display:'flex',gap:8,alignItems:'center'}}>
@@ -798,16 +916,15 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Puesto + Requisitos */}
                 {showPuesto&&(
                   <div style={{background:'#f0f9ff',border:'1px solid #bae6fd',borderRadius:14,padding:20,display:'flex',flexDirection:'column',gap:12}}>
                     <p style={{fontSize:11,fontWeight:700,color:'#0369a1',textTransform:'uppercase',letterSpacing:'.06em'}}>📌 {es?'Información del puesto':'Position info'}</p>
                     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
                       {[
-                        {k:'puesto',    l:es?'Puesto *':'Position *',         p:es?'ej: Gerente de Ventas':'ex: Sales Manager',     req:true},
-                        {k:'industria', l:es?'Industria *':'Industry *',      p:es?'ej: Telecomunicaciones':'ex: Telecom',           req:true},
-                        {k:'empresa',   l:es?'Empresa (opcional)':'Company',  p:'ej: Claro',                                        req:false},
-                        {k:'linkOferta',l:es?'Link oferta (opcional)':'Job link', p:'https://...',                                  req:false, type:'url'},
+                        {k:'puesto',    l:es?'Puesto *':'Position *',        p:es?'ej: Gerente de Ventas':'ex: Sales Manager',req:true},
+                        {k:'industria', l:es?'Industria *':'Industry *',     p:es?'ej: Telecomunicaciones':'ex: Telecom',    req:true},
+                        {k:'empresa',   l:es?'Empresa (opcional)':'Company', p:'ej: Claro',                                  req:false},
+                        {k:'linkOferta',l:es?'Link oferta (opcional)':'Job link',p:'https://...',                            req:false,type:'url'},
                       ].map(f=>(
                         <div key={f.k}>
                           <label style={{display:'block',fontSize:11,fontWeight:600,color:'#0369a1',marginBottom:4}}>{f.l}</label>
@@ -830,7 +947,6 @@ export default function App() {
                   </div>
                 )}
 
-                {/* Info adicional */}
                 {paid.tipoRevision&&(
                   <div>
                     <Lbl t={paid.tieneCV==='no'
@@ -868,7 +984,7 @@ export default function App() {
         </section>
       )}
 
-      {/* ── CÓMO FUNCIONA ────────────────────────────────────────────────────── */}
+      {/* ── CÓMO FUNCIONA ────────────────────────────────────────────────── */}
       <section className="section-dark">
         <div className="container">
           <div style={{textAlign:'center',marginBottom:40}}>
@@ -892,7 +1008,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── CTA FINAL ────────────────────────────────────────────────────────── */}
+      {/* ── CTA FINAL ────────────────────────────────────────────────────── */}
       <section style={{background:'linear-gradient(135deg,#1d4ed8,#4338ca)',padding:'60px 0',textAlign:'center'}}>
         <div className="container">
           <h2 style={{fontFamily:'Bricolage Grotesque,sans-serif',fontSize:'clamp(22px,4vw,36px)',color:'white',marginBottom:12,letterSpacing:'-.025em'}}>
@@ -908,7 +1024,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── FOOTER ───────────────────────────────────────────────────────────── */}
+      {/* ── FOOTER ───────────────────────────────────────────────────────── */}
       <footer>
         <div className="container" style={{display:'flex',flexWrap:'wrap',justifyContent:'space-between',alignItems:'center',gap:12}}>
           <span style={{fontSize:12,color:'rgba(255,255,255,.28)'}}>© 2026 Nocodia CV · Guayaquil, Ecuador</span>
