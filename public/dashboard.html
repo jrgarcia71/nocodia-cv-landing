@@ -196,9 +196,18 @@ header h1 { font-size: 24px; font-weight: 600; color: #1e293b; }
         return;
       }
       allRequests = data || [];
+
+      // FIX: actualizar selectedRequest con datos frescos de Supabase
+      // Sin esto, el panel de detalles queda congelado en el estado anterior
+      if (selectedRequest) {
+        const fresh = allRequests.find(r => r.id === selectedRequest.id);
+        if (fresh) selectedRequest = fresh;
+      }
+
       renderStats();
       renderFilters();
       renderRequests();
+      renderDetails(); // FIX: re-renderizar detalles con estado actualizado
     } catch (e) {
       document.getElementById('stats').innerHTML = '<div class="empty-state">❌ Error de conexión con Supabase.</div>';
     }
