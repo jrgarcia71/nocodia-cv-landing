@@ -332,8 +332,8 @@ export default function App() {
           <p style={{fontSize:13,fontWeight:600,color:has?'#059669':purple?'#7c3aed':'#1d4ed8',margin:0}}>
             {has?`✓ ${paid[fileKey].name}`:(es?'Haz click o arrastra aquí':'Click or drag here')}
           </p>
-          <p style={{fontSize:11,color:'#94a3b8',margin:'2px 0 0'}}>PDF · {es?'Máx 5MB':'Max 5MB'}</p>
-          <input type="file" accept=".pdf" style={{display:'none'}}
+          <p style={{fontSize:11,color:'#94a3b8',margin:'2px 0 0'}}>PDF / DOCX · {es?'Máx 5MB':'Max 5MB'}</p>
+          <input type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{display:'none'}}
             onChange={e=>{if(e.target.files[0]) setPaid(p=>({...p,[fileKey]:e.target.files[0]}));}}/>
         </label>
       </div>
@@ -440,14 +440,14 @@ export default function App() {
                       onChange={e=>setFree(p=>({...p,email:e.target.value}))}/>
                   </div>
                   <div>
-                    <Lbl t={es?'Sube tu CV (PDF)':'Upload resume (PDF)'}/>
+                    <Lbl t={es?'Sube tu CV (PDF o Word)':'Upload resume (PDF or Word)'}/>
                     <label className={`upload-wrap${free.cvFile?' has-file':''}`}>
                       <Upload size={20} color={free.cvFile?'#059669':'#94a3b8'} style={{display:'block',margin:'0 auto 6px'}}/>
                       <p style={{fontSize:13,fontWeight:600,color:free.cvFile?'#059669':'#1d4ed8',margin:0}}>
                         {free.cvFile?`✓ ${free.cvFile.name}`:(es?'Haz click aquí':'Click here')}
                       </p>
-                      <p style={{fontSize:11,color:'#94a3b8',margin:'3px 0 0'}}>PDF · {es?'Máx 5MB':'Max 5MB'}</p>
-                      <input required type="file" accept=".pdf" style={{display:'none'}}
+                      <p style={{fontSize:11,color:'#94a3b8',margin:'3px 0 0'}}>PDF / DOCX · {es?'Máx 5MB':'Max 5MB'}</p>
+                      <input required type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{display:'none'}}
                         onChange={e=>{if(e.target.files[0]) setFree(p=>({...p,cvFile:e.target.files[0]}));}}/>
                     </label>
                   </div>
